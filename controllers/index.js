@@ -1,7 +1,5 @@
-const student = require('./student');
-const course = require('./course');
+import { userController } from './user.js';
 
-module.exports = {
-  student,
-  course,
+export {
+  userController
 };
