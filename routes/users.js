@@ -1,21 +1,20 @@
-var express = require('express');
-var router = express.Router();
+import { Router } from 'express';
+const router = Router();
 
-const studentController = require('../controllers').student;
+import { userController } from '../controllers/index.js';
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
-/* Student Router */
-router.get('/', studentController.list);
-router.get('/:id', studentController.getById);
-router.post('/', studentController.add);
-router.put('/:id', studentController.update);
-router.delete(':id', studentController.delete);
+/* User Router */
+router.get('/', userController.getAll);
+router.get('/:id', userController.getById);
+router.post('/', userController.create);
+router.put('/:id', userController.update);
+router.delete(':id', userController.delete);
 
 /* Advance Router */
-router.post('/add_per', studentController.addCourse);
 
-module.exports = router;
+export default router;
