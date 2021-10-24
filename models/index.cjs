@@ -26,9 +26,10 @@ fs
 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
-    db[modelName].associate(db);
+    db[modelName].associate(db)
   }
 });
+sequelize.sync({force: true})
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
