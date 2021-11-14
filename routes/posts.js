@@ -4,6 +4,7 @@ import { uploadImageCloudinaryMiddleware } from "../middleware/upload_image_clou
 import { postController } from '../controllers/index.js';
 const router = Router();
 
+router.get("/", postController.getAll);
 router.post("/", uploadImageServerMiddleware, uploadImageCloudinaryMiddleware, postController.create);
 
 

@@ -21,10 +21,12 @@ module.exports = {
         type: Sequelize.ENUM('below', 'inside')
       },
       upvote: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       },
       downvote: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       },
       createdAt: {
         allowNull: false,

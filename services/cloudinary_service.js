@@ -8,7 +8,7 @@ export const uploadSingle = (file_path, folder_name) => {
             })
             .then(result => {
                 if (result) {
-                    // fs.unlinkSync(file_path);
+                     fs.unlinkSync(file_path);
                     resolve({
                         url: result.secure_url
                     })
