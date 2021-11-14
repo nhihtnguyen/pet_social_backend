@@ -6,11 +6,12 @@ import logger from 'morgan';
 import { fileURLToPath } from "url";
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
+import postsRouter from './routes/posts.js';
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+export const __dirname = path.dirname(__filename);
 
-var app = express();
+const app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -19,5 +20,7 @@ app.use(cookieParser());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/post', postsRouter)
+
 
 export default app;
