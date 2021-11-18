@@ -4,7 +4,7 @@ import { createServer } from "http";
 
 const debug = debugLib("node-sequelize:server");
 
-const port = normalizePort(process.env.PORT || "3000");
+const port = normalizePort(process.env.PORT || "8081");
 app.set("port", port);
 
 const server = createServer(app);
