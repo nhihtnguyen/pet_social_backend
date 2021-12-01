@@ -5,6 +5,7 @@ import { postController } from '../controllers/index.js';
 const router = Router();
 
 router.get("/", postController.getAll);
+router.get("/:id", postController.getById);
 router.post("/", uploadImageServerMiddleware, uploadImageCloudinaryMiddleware, postController.create);
 
 
