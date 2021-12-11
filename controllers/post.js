@@ -51,7 +51,7 @@ export class PostController extends BaseController {
   async getAll(req, res) {
     const page = req.query.page;
     //limit 5 record per page
-    const limit = page ? 5 : null;
+    const limit = page ? 5 : 100;
     if (req.query.search) {
       return client
         .search({
