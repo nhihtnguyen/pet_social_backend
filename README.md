@@ -8,8 +8,10 @@
 `npm install -g pg`
 
 * Run `npm install` or `yarn install`
-* Run `sequelize db:migrate`
-* Run `nodemon` or `npm start`
+* Run `sequelize db:migrate` 
+* Run `npm run dev` or `npm start`
 
 #To create model and migration
 `sequelize model:create --name Model --attributes attr:string`
+#To rollback migration
+`db:migrate:undo`

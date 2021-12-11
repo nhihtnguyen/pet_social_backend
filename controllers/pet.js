@@ -1,9 +1,9 @@
 import BaseController from "./base_controller.js";
 import db from '../models/index.cjs';
-const { User } = db;
+const { Pet } = db;
 
-export class UserController extends BaseController {
+export class PetController extends BaseController {
   constructor(){
-    super(User);
+    super(Pet);
   }
 }

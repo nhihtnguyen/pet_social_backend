@@ -7,7 +7,8 @@ import { fileURLToPath } from "url";
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 import postsRouter from './routes/posts.js';
-import cors from "cors";
+import petsRouter from './routes/pets.js';
+import cors from 'cors';
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -24,7 +25,8 @@ app.use(cookieParser());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/post', postsRouter)
+app.use('/posts', postsRouter)
+app.use('/pets', petsRouter)
 
 
 export default app;
