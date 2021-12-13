@@ -1,11 +1,14 @@
 import { REQUIRE_FIELDS } from "../constants/require_fields.js";
+
 export default class BaseController {
+  _Model;
+
   constructor(Model) {
-    this.Model = Model;
+    this._Model = Model;
   }
 
-  getAll = (req, res) => {
-    return this.Model.findAll({order: [['updatedAt', 'ASC']]})
+  async getAll(req, res) {
+    return this._Model.findAll({order: [['updatedAt', 'ASC']]})
     .then((records) => {
       res.status(200).json(records);
     })
@@ -15,8 +18,8 @@ export default class BaseController {
     });
   };
 
-  getById = (req, res) => {
-    return this.Model.findByPk(req.params.id)
+  async getById(req, res) {
+    return this._Model.findByPk(req.params.id)
     .then((record) => {
       if (!record) {return res.status(404).send("Record Not Found")}
       res.status(200).json(record);
@@ -27,9 +30,9 @@ export default class BaseController {
     });
   }
 
-  create = (req, res) => {
-    return this.Model.create(req.body, {
-      fields: REQUIRE_FIELDS[this.Model.modelName]
+  async create(req, res) {
+    return this._Model.create(req.body, {
+      fields: REQUIRE_FIELDS[this._Model.modelName]
     })
     .then((record) => res.status(200).json(record))
     .catch((err) => { 
@@ -38,13 +41,13 @@ export default class BaseController {
     });
   }
 
-  update = async (req, res) => {
+  async update(req, res) {
     try {
-      let record = await this.Model.findOne({where: { id: req.params.id }});
+      let record = await this._Model.findOne({where: { id: req.params.id }});
       if (!record) { return res.status(404).send("Record Not Found")}
       const updatedRecord = await record.update(req.body, {
         where: { id: req.params.id },
-        fields: REQUIRE_FIELDS[this.Model.modelName]
+        fields: REQUIRE_FIELDS[this._Model.modelName]
       });
       res.status(200).json(updatedRecord); 
     } catch (err) {
@@ -53,14 +56,14 @@ export default class BaseController {
     }
   }
 
-  delete = async (req, res) => {
+  async delete(req, res) {
     try {
-      let record = await this.Model.findOne({where: { id: req.params.id }});
+      let record = await this._Model.findOne({where: { id: req.params.id }});
       if (!record) { return res.status(404).send("Record Not Found")}
-      await this.Model.destroy({
+      await this._Model.destroy({
         where: { id: req.params.id }
       });
-      res.status(200).json({ msg: `Removed ${this.Model.modelName}`})
+      res.status(200).json({ msg: `Removed ${this._Model.modelName}`})
     } catch (err) {
       console.error(err.message);
       res.status(400).json(err);

@@ -1,5 +1,82 @@
 import BaseController from "./base_controller.js";
-import db from '../models/index.cjs';
-const { Post } = db;
+import { REQUIRE_FIELDS } from "../constants/require_fields.js";
+import db from "../models/index.cjs";
+import { Client } from "@elastic/elasticsearch";
+const { Post, PetPost, PostTag, User} = db;
 
-export const postController = new BaseController(Post);
+const client = new Client({ node: "http://localhost:9200" });
+
+export class PostController extends BaseController {
+  constructor() {
+    super(Post);
+  }
+
+  async create(req, res) {
+    const pet_ids = req.body.mentions.split(",");
+    const mentions = pet_ids?.map((pet_id) => ({ pet_id }));
+    const hashtags = req.body.caption.match(/#[a-z0-9_]+/g);
+    const tags = hashtags?.map((tag) => ({ tag }));
+    const custom_fields = { ...req.body, mentions, tags };
+    const Mentions = Post.hasMany(PetPost, {
+      foreignKey: "post_id",
+      as: "mentions",
+    });
+    const Tags = Post.hasMany(PostTag, { foreignKey: "post_id", as: "tags" });
+
+    return this._Model
+      .create(custom_fields, {
+        fields: REQUIRE_FIELDS.Post,
+        include: [{ association: Mentions, Tags }],
+      })
+      .then((record) => {
+        client
+          .index({
+            index: "post",
+            body: JSON.parse(JSON.stringify(record)),
+          })
+          .then((result) => {
+            console.log(result);
+            res.status(200).json(record);
+          })
+          .catch((err) => {
+            console.error(err.message);
+          });
+      })
+      .catch((err) => {
+        console.error(err.message);
+        res.status(400).json(err);
+      });
+  }
+
+  async getAll(req, res) {
+    const page = req.query.page;
+    //limit 5 record per page
+    const limit = page ? 5 : 100;
+    if (req.query.search) {
+      return client
+        .search({
+          index: "post",
+          from: (page - 1)*limit || 0,
+          size: limit,
+          body: {
+            query: {
+              match: { caption: req.query.search },
+            },
+          },
+        })
+        .then((result) =>
+          res.status(200).send(result.body.hits.hits.map((hit) => hit._source))
+        );
+    } else {
+      return this._Model
+        .findAll({ order: [["updatedAt", "ASC"]], limit: limit, offset: (page - 1)*limit || 0, include: [{ model: User, attributes: ['avatar'] }] })
+        .then((records) => {
+          res.status(200).json(records);
+        })
+        .catch((err) => {
+          console.error(err.message);
+          res.status(400).json(err);
+        });
+    }
+  }
+}

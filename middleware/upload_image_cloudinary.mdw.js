@@ -5,7 +5,7 @@ export const uploadImageCloudinaryMiddleware = async (req, res, next) => {
     const result = await uploadSingle(req.file.path, "post_uploaded_images");
     req.body.media_URL = result.url;
   } catch (err) {
-    res.json({ message: err.message });
+    return res.json({ message: err.message });
   }
   next();
 };
