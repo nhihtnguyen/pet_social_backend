@@ -4,13 +4,18 @@ import BaseController from "./base_controller.js";
 import db from "../models/index.cjs";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import dotenv from "dotenv";
+import redisClient from "../services/redis_service.js";
+dotenv.config();
 
-const JWT_ACCESS_TOKEN_SERECT = "khoat";
-const JWT_ACCESS_TOKEN_EXPIRATION = 10000;
-const JWT_REFRESH_TOKEN_SERECT = "khoat1";
-const JWT_REFRESH_TOKEN_EXPIRATION = 100000;
+const JWT_ACCESS_TOKEN_SERECT = process.env.JWT_ACCESS_TOKEN_SERECT || "abc";
+const JWT_ACCESS_TOKEN_EXPIRATION =
+  Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION) || 10000;
+const JWT_REFRESH_TOKEN_SERECT = process.env.JWT_REFRESH_TOKEN_SERECT || "abc1";
+const JWT_REFRESH_TOKEN_EXPIRATION =
+  Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION) || 100000;
 // Bcrypt salt
-const BCRYPT_SALT = 8;
+const BCRYPT_SALT = process.env.BCRYPT_SALT || 8;
 
 // Removed
 const refreshArray = {};
@@ -89,8 +94,9 @@ export class AuthController extends BaseController {
       const payload = { id: user.id };
       try {
         // Get access token
+        console.log(JWT_REFRESH_TOKEN_EXPIRATION);
         const accessToken = await jwt.sign(payload, JWT_ACCESS_TOKEN_SERECT, {
-          expiresIn: `${JWT_REFRESH_TOKEN_EXPIRATION}`,
+          expiresIn: `${JWT_ACCESS_TOKEN_EXPIRATION}`,
         });
         // Get refresh token
         const refreshToken = await jwt.sign(payload, JWT_REFRESH_TOKEN_SERECT, {
@@ -98,21 +104,47 @@ export class AuthController extends BaseController {
         });
         // Store: local/database/redis
         refreshArray[refreshToken] = payload;
+        // Redis
 
-        res
-          .status(200)
-          .cookie("authentication", accessToken, {
-            expires: new Date(Date.now() + JWT_ACCESS_TOKEN_EXPIRATION),
-            //secure: true,
-            httpOnly: true,
-          })
-          .cookie("refresh", refreshToken, {
-            expires: new Date(Date.now() + JWT_REFRESH_TOKEN_EXPIRATION),
-            //secure: true,
-            httpOnly: true,
-          })
-          .status(200)
-          .json({ msg: "Success" });
+        try {
+          /* redisClient.set(
+            refreshToken,
+            JSON.stringify(payload),
+            (err, reply) => {
+              if (err) throw err;
+              console.log(reply);
+              redisClient.expire(
+                refreshToken,
+                JWT_REFRESH_TOKEN_EXPIRATION,
+                (err, reply) => {
+                  if (err) throw err;
+                  console.log(reply);
+                  redisClient.get(refreshToken, (err, reply) => {
+                    if (err) throw err;
+                  });
+                }
+              );
+            }
+          );
+          */
+
+          res
+            .status(200)
+            .cookie("authentication", accessToken, {
+              expires: new Date(Date.now() + JWT_ACCESS_TOKEN_EXPIRATION),
+              //secure: true,
+              httpOnly: true,
+            })
+            .cookie("refresh", refreshToken, {
+              expires: new Date(Date.now() + JWT_REFRESH_TOKEN_EXPIRATION),
+              //secure: true,
+              httpOnly: true,
+            })
+            .status(200)
+            .json({ msg: "Success" });
+        } catch (error) {
+          console.log(error);
+        }
       } catch (err) {
         res.status(500).json({ msg: "Server got error in logging" });
         throw err;
@@ -153,5 +185,66 @@ export class AuthController extends BaseController {
       })
       .status(200)
       .json("ok");
+  };
+
+  refresh = async (req, res) => {
+    const refreshToken = req.cookies["refresh"];
+    let payload = null;
+    //
+    payload = refreshArray[refreshToken];
+    /* // Redis
+    payload = await new Promise((resolve, reject) => {
+      try {
+        redisClient.mGet(refreshToken, (err, reply) => {
+          if (err) throw err;
+          payload = JSON.parse(reply);
+
+          resolve(payload);
+        });
+      } catch (error) {
+        reject(error);
+      }
+    });
+    */
+    if (refreshToken && payload) {
+      try {
+        jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SERECT);
+        const token = await jwt.sign(payload, JWT_ACCESS_TOKEN_SERECT, {
+          expiresIn: `${JWT_ACCESS_TOKEN_EXPIRATION}`,
+        });
+        return res
+          .cookie("authentication", token, {
+            expires: new Date(Date.now() + JWT_ACCESS_TOKEN_EXPIRATION),
+            //secure: true,
+            httpOnly: true,
+          })
+          .status(200)
+          .json("Refresh token success")
+          .end();
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({
+          msg: "Invalid refresh token",
+        });
+      }
+    } else {
+      res.status(500).json({ msg: "Invalid request" });
+    }
+  };
+  revokeRefreshToken = (req, res) => {
+    const refreshToken = req.cookies["refresh"];
+
+    try {
+      /* redisClient.get(refreshToken, (err, reply) => {
+        if (err) throw err;
+        redisClient.del(refreshToken, (err, reply) => {
+          console.log("reject", reply);
+        });
+      });*/
+      delete refreshArray[refreshToken];
+      res.status(200).json({ msg: "Revoke success" });
+    } catch (error) {
+      console.log(error);
+    }
   };
 }

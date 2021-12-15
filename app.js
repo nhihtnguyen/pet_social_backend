@@ -11,6 +11,7 @@ import petsRouter from "./routes/pets.js";
 import authRouter from "./routes/auth.js";
 import cors from "cors";
 import passport from "passport";
+import redisClient from "./services/redis_service.js";
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
@@ -21,6 +22,8 @@ app.use(
     origin: process.env.FRONT_END_DOMAIN,
   })
 );
+
+//redisClient.connect();
 
 app.use(logger("dev"));
 app.use(express.json({ limit: "50mb" }));

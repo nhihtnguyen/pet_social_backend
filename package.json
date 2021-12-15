@@ -28,6 +28,7 @@
     "passport-oauth2-refresh": "^2.1.0",
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.3",
+    "redis": "^4.0.1",
     "sequelize": "^6.2.4"
   }
 }

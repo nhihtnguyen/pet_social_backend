@@ -1,7 +1,17 @@
 import passport from "passport";
-const db = require("_helpers/db");
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import redisClient from "../services/redis_service.js";
+dotenv.config();
 
-export const authorize = (roles = []) => {
+const JWT_ACCESS_TOKEN_SERECT = process.env.JWT_ACCESS_TOKEN_SERECT || "abc";
+const JWT_ACCESS_TOKEN_EXPIRATION =
+  process.env.JWT_ACCESS_TOKEN_SERECT || 10000;
+const JWT_REFRESH_TOKEN_SERECT = process.env.JWT_ACCESS_TOKEN_SERECT || "abc1";
+const JWT_REFRESH_TOKEN_EXPIRATION =
+  process.env.JWT_ACCESS_TOKEN_SERECT || 100000;
+
+const authenticate = (roles = []) => {
   if (typeof roles === "string") {
     roles = [roles];
   }
@@ -9,14 +19,8 @@ export const authorize = (roles = []) => {
   return [
     // Use passport verify token
     passport.authenticate("jwt", { session: false }),
-    // authorize based on user role
-    async (req, res, next) => {
-      // authentication and authorization successful
-      req.user.role = user.role;
-      const refreshTokens = await db.RefreshToken.find({ user: user.id });
-      req.user.ownsToken = (token) =>
-        !!refreshTokens.find((x) => x.token === token);
-      next();
-    },
+    // Check and refresh token
   ];
 };
+
+export default authenticate;
