@@ -2,7 +2,7 @@ import BaseController from "./base_controller.js";
 import { REQUIRE_FIELDS } from "../constants/require_fields.js";
 import db from "../models/index.cjs";
 import { Client } from "@elastic/elasticsearch";
-const { Post, PetPost, PostTag, User} = db;
+const { Post, PetPost, PostTag, User, Pet } = db;
 
 const client = new Client({ node: "http://localhost:9200" });
 
@@ -48,7 +48,7 @@ export class PostController extends BaseController {
       });
   }
 
-  async getAll(req, res) {
+  async getExplore(req, res) {
     const page = req.query.page;
     //limit 5 record per page
     const limit = page ? 5 : 100;
@@ -56,7 +56,7 @@ export class PostController extends BaseController {
       return client
         .search({
           index: "post",
-          from: (page - 1)*limit || 0,
+          from: (page - 1) * limit || 0,
           size: limit,
           body: {
             query: {
@@ -69,7 +69,12 @@ export class PostController extends BaseController {
         );
     } else {
       return this._Model
-        .findAll({ order: [["updatedAt", "ASC"]], limit: limit, offset: (page - 1)*limit || 0, include: [{ model: User, attributes: ['avatar'] }] })
+        .findAll({
+          order: [["updatedAt", "ASC"]],
+          limit: limit,
+          offset: (page - 1) * limit || 0,
+          include: [{ model: User, attributes: ["avatar"] }],
+        })
         .then((records) => {
           res.status(200).json(records);
         })
@@ -78,5 +83,31 @@ export class PostController extends BaseController {
           res.status(400).json(err);
         });
     }
+  }
+
+  async getByPetId(req, res) {
+    const where = { pet_id: req.params.id };
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 1;
+    const offset = (page - 1) * limit || 0;
+    const posts = await this._Model.findAll({
+      paginate: {},
+      include: [
+        {
+          model: Pet,
+          as: "Pets",
+          attributes: ["id"],
+          required: true,
+          through: {
+            attributes: [],
+            where: {
+              "$Pets.id$": req.params.id,
+            },
+          },
+        },
+      ],
+    });
+
+    res.status(200).json(posts);
   }
 }

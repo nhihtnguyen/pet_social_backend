@@ -9,6 +9,9 @@ import usersRouter from "./routes/users.js";
 import postsRouter from "./routes/posts.js";
 import petsRouter from "./routes/pets.js";
 import authRouter from "./routes/auth.js";
+import commentsRouter from "./routes/comments.js";
+import followingRouter from "./routes/following.js";
+
 import cors from "cors";
 import passport from "passport";
 import redisClient from "./services/redis_service.js";
@@ -36,5 +39,7 @@ app.use("/users", usersRouter);
 app.use("/posts", postsRouter);
 app.use("/pets", petsRouter);
 app.use("/auth", authRouter);
+app.use("/comments", commentsRouter);
+app.use("/following", followingRouter);
 
 export default app;

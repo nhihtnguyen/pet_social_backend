@@ -40,9 +40,8 @@ const jwtOptions = {
 export class AuthController extends BaseController {
   constructor() {
     super(User);
-    this.strategy = new Strategy(jwtOptions, (payload, next) => {
-      console.log("payload received", payload);
-      const user = this.getUser({ id: payload.id });
+    this.strategy = new Strategy(jwtOptions, async (payload, next) => {
+      const user = await this.getUser({ id: payload.id });
       if (user) {
         next(null, user);
       } else {
