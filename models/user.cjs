@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       User.belongsTo(models.Country, { foreignKey: "countryCode" });
       User.belongsToMany(models.Pet, {
         through: "PetFollower",
-        foreignKey: "following_id",
+        foreignKey: "follower_id",
         as: "follower",
       });
       User.belongsToMany(models.Pet, {
