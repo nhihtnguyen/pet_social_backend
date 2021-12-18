@@ -1,17 +1,17 @@
-import passport from 'passport';
-import { Strategy, ExtractJwt } from 'passport-jwt';
-import BaseController from './base_controller.js';
-import db from '../models/index.cjs';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-import dotenv from 'dotenv';
-import redisClient from '../services/redis_service.js';
+import passport from "passport";
+import { Strategy, ExtractJwt } from "passport-jwt";
+import BaseController from "./base_controller.js";
+import db from "../models/index.cjs";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import dotenv from "dotenv";
+import redisClient from "../services/redis_service.js";
 dotenv.config();
 
-const JWT_ACCESS_TOKEN_SERECT = process.env.JWT_ACCESS_TOKEN_SERECT || 'abc';
+const JWT_ACCESS_TOKEN_SERECT = process.env.JWT_ACCESS_TOKEN_SERECT || "abc";
 const JWT_ACCESS_TOKEN_EXPIRATION =
   Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION) || 10000;
-const JWT_REFRESH_TOKEN_SERECT = process.env.JWT_REFRESH_TOKEN_SERECT || 'abc1';
+const JWT_REFRESH_TOKEN_SERECT = process.env.JWT_REFRESH_TOKEN_SERECT || "abc1";
 const JWT_REFRESH_TOKEN_EXPIRATION =
   Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION) || 100000;
 // Bcrypt salt
@@ -22,18 +22,19 @@ const refreshArray = {};
 
 const { User } = db;
 
+//
 const cookieExtractor = (req) => {
   let jwt = null;
 
   if (req && req.cookies) {
-    jwt = req.cookies['authentication'];
+    jwt = req.cookies["authentication"];
   }
 
   return jwt;
 };
 
 const jwtOptions = {
-  jwtFromRequest: cookieExtractor,
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: JWT_ACCESS_TOKEN_SERECT,
 };
 
@@ -83,11 +84,11 @@ export class AuthController extends BaseController {
     if (email && password) {
       const user = await this.getUser({ email });
       if (!user) {
-        return res.status(401).json({ msg: 'User is not exist' });
+        return res.status(401).json({ msg: "User is not exist" });
       }
 
       if (!bcrypt.compareSync(password, user.password)) {
-        return res.status(401).json({ msg: 'Password is incorrect' });
+        return res.status(401).json({ msg: "Password is incorrect" });
       }
       // Payload
       const payload = { id: user.id };
@@ -129,23 +130,18 @@ export class AuthController extends BaseController {
 
           res
             .status(200)
-            .cookie('authentication', accessToken, {
-              expires: new Date(Date.now() + JWT_ACCESS_TOKEN_EXPIRATION),
-              //secure: true,
-              httpOnly: true,
-            })
-            .cookie('refresh', refreshToken, {
+            .cookie("refresh", refreshToken, {
               expires: new Date(Date.now() + JWT_REFRESH_TOKEN_EXPIRATION),
               //secure: true,
               httpOnly: true,
             })
             .status(200)
-            .json({ msg: 'Success' });
+            .json({ msg: "Success", accessToken });
         } catch (error) {
           console.log(error);
         }
       } catch (err) {
-        res.status(500).json({ msg: 'Server got error in logging' });
+        res.status(500).json({ msg: "Server got error in logging" });
         throw err;
       }
     }
@@ -158,7 +154,7 @@ export class AuthController extends BaseController {
       const user = await this.getUser({ email });
 
       if (user) {
-        return res.status(401).json({ msg: 'User has already exist' });
+        return res.status(401).json({ msg: "User has already exist" });
       }
 
       const newUser = {
@@ -172,23 +168,24 @@ export class AuthController extends BaseController {
   logout = async (req, res) => {
     res
       .status(200)
-      .cookie('authentication', {
+      .cookie("authentication", {
         expires: new Date.now(),
         //secure: true,
-        httpOnly: true,
+        //httpOnly: true,
       })
-      .cookie('refresh', {
+      .cookie("refresh", {
         expires: new Date.now(),
         //secure: true,
-        httpOnly: true,
+        //httpOnly: true,
       })
       .status(200)
-      .json('ok');
+      .json("ok");
   };
 
   refresh = async (req, res) => {
-    const refreshToken = req.cookies['refresh'];
+    const refreshToken = req.cookies["refresh"];
     let payload = null;
+
     //
     payload = refreshArray[refreshToken];
     /* // Redis
@@ -212,26 +209,21 @@ export class AuthController extends BaseController {
           expiresIn: `${JWT_ACCESS_TOKEN_EXPIRATION}`,
         });
         return res
-          .cookie('authentication', token, {
-            expires: new Date(Date.now() + JWT_ACCESS_TOKEN_EXPIRATION),
-            //secure: true,
-            httpOnly: true,
-          })
           .status(200)
-          .json('Refresh token success')
+          .json({ msg: "Refresh Success", accessToken: token })
           .end();
       } catch (error) {
         console.error(error);
         res.status(500).json({
-          msg: 'Invalid refresh token',
+          msg: "Invalid refresh token",
         });
       }
     } else {
-      res.status(500).json({ msg: 'Invalid request' });
+      res.status(500).json({ msg: "Invalid request" });
     }
   };
   revokeRefreshToken = (req, res) => {
-    const refreshToken = req.cookies['refresh'];
+    const refreshToken = req.cookies["refresh"];
 
     try {
       /* redisClient.get(refreshToken, (err, reply) => {
@@ -241,7 +233,7 @@ export class AuthController extends BaseController {
         });
       });*/
       delete refreshArray[refreshToken];
-      res.status(200).json({ msg: 'Revoke success' });
+      res.status(200).json({ msg: "Revoke success" });
     } catch (error) {
       console.log(error);
     }

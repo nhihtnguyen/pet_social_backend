@@ -1,19 +1,21 @@
-import BaseController from './base_controller.js';
-import db from '../models/index.cjs';
-const { Comment } = db;
-import { REQUIRE_FIELDS } from '../constants/require_fields.js';
-
+import BaseController from "./base_controller.js";
+import db from "../models/index.cjs";
+const { Comment, User } = db;
+import { REQUIRE_FIELDS } from "../constants/require_fields.js";
 export class CommentController extends BaseController {
   constructor() {
     super(Comment);
   }
   async getByPostId(req, res) {
-    const where = { post_id: req.params.id };
+    const replyFor = req.query.reply || null;
+    const where = { post_id: req.params.id, reply_for: replyFor };
     const page = req.query.page || 1;
     const limit = req.query.limit || 5;
     const offset = (page - 1) * limit || 0;
-    const comments = await this._Model.findAndCountAll({
+    const comments = await this._Model.findAll({
+      include: [{ model: User, attributes: ["first_name", "last_name"] }],
       where,
+      order: [["id", "DESC"]],
       offset,
       limit,
     });
@@ -31,10 +33,10 @@ export class CommentController extends BaseController {
       const caller = req.user.id;
       let record = await this._Model.findOne({ where: { id: req.params.id } });
       if (!record) {
-        return res.status(404).send('Record Not Found');
+        return res.status(404).send("Record Not Found");
       }
       if (record.user_id !== caller) {
-        return res.status(401).send('Unauthorized');
+        return res.status(401).send("Unauthorized");
       }
       const updatedRecord = await record.update(req.body, {
         where: { id: req.params.id },

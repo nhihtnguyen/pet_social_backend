@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Comment.belongsTo(models.Post, { foreignKey: "post_id" });
+      Comment.belongsTo(models.User, { foreignKey: "user_id" });
     }
   }
   Comment.init(
@@ -23,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Comment",
+      underscored: true,
     }
   );
   return Comment;

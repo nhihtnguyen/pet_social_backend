@@ -1,10 +1,10 @@
-import BaseController from './base_controller.js';
-import { REQUIRE_FIELDS } from '../constants/require_fields.js';
-import db from '../models/index.cjs';
-import { Client } from '@elastic/elasticsearch';
+import BaseController from "./base_controller.js";
+import { REQUIRE_FIELDS } from "../constants/require_fields.js";
+import db from "../models/index.cjs";
+import { Client } from "@elastic/elasticsearch";
 const { Post, PetPost, PostTag, User, Pet } = db;
 
-const client = new Client({ node: 'http://localhost:9200' });
+const client = new Client({ node: "http://localhost:9200" });
 
 export class PostController extends BaseController {
   constructor() {
@@ -12,26 +12,29 @@ export class PostController extends BaseController {
   }
 
   async create(req, res) {
-    const pet_ids = req.body.mentions.split(',');
+    const userId = req.user.id;
+    const pet_ids = req.body.mentions.split(",");
     const mentions = pet_ids?.map((pet_id) => ({ pet_id }));
     const hashtags = req.body.caption.match(/#[a-z0-9_]+/g);
     const tags = hashtags?.map((tag) => ({ tag }));
-    const custom_fields = { ...req.body, mentions, tags };
+    const custom_fields = { ...req.body, mentions, user_id: userId };
+    console.log("Filed", custom_fields);
+
     const Mentions = Post.hasMany(PetPost, {
-      foreignKey: 'post_id',
-      as: 'mentions',
+      foreignKey: "post_id",
+      as: "mentions",
     });
-    const Tags = Post.hasMany(PostTag, { foreignKey: 'post_id', as: 'tags' });
+    const Tags = Post.hasMany(PostTag, { foreignKey: "post_id", as: "tags" });
 
     return this._Model
       .create(custom_fields, {
         fields: REQUIRE_FIELDS.Post,
-        include: [{ association: Mentions, Tags }],
+        include: [{ association: Mentions }],
       })
       .then((record) => {
         client
           .index({
-            index: 'post',
+            index: "post",
             body: JSON.parse(JSON.stringify(record)),
           })
           .then((result) => {
@@ -55,7 +58,7 @@ export class PostController extends BaseController {
     if (req.query.search) {
       return client
         .search({
-          index: 'post',
+          index: "post",
           from: (page - 1) * limit || 0,
           size: limit,
           body: {
@@ -70,10 +73,10 @@ export class PostController extends BaseController {
     } else {
       return this._Model
         .findAll({
-          order: [['updatedAt', 'ASC']],
+          order: [["updated_at", "ASC"]],
           limit: limit,
           offset: (page - 1) * limit || 0,
-          include: [{ model: User, attributes: ['avatar'] }],
+          include: [{ model: User, attributes: ["avatar"] }],
         })
         .then((records) => {
           res.status(200).json(records);
@@ -95,13 +98,13 @@ export class PostController extends BaseController {
       include: [
         {
           model: Pet,
-          as: 'Pets',
-          attributes: ['id'],
+          as: "Pets",
+          attributes: ["id"],
           required: true,
           through: {
             attributes: [],
             where: {
-              '$Pets.id$': req.params.id,
+              "$Pets.id$": req.params.id,
             },
           },
         },
@@ -117,10 +120,10 @@ export class PostController extends BaseController {
       let record = await this._Model.findOne({ where: { id: req.params.id } });
       console.log(record);
       if (!record) {
-        return res.status(404).send('Record Not Found');
+        return res.status(404).send("Record Not Found");
       }
       if (record.user_id !== caller) {
-        return res.status(401).send('Unauthorized');
+        return res.status(401).send("Unauthorized");
       }
       const updatedRecord = await record.update(req.body, {
         where: { id: req.params.id },
