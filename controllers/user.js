@@ -8,18 +8,20 @@ export class UserController extends BaseController {
   }
   async uploadImage(req, res) {
     try {
-      let updateField = req.path.split('/')[1];
+      console.log(req.body.media_url);
+      let updateField = req.path.split('/');
+      updateField = updateField[updateField.length - 1].trim();
+      console.log(updateField);
       let record = await this._Model.findOne({ where: { id: req.user.id } });
       if (!record) {
         return res.status(401).send('Unauthorized');
       }
-      const newAvatar = await record.update({
-        updateField: req.body.media_URL,
-      });
+      record[`${updateField}`] = req.body.media_url;
+      let newAvatar = await record.save();
       res.status(200).json(newAvatar);
-    } catch (err) {
-      console.error(err);
-      res.status(400).json(err);
+    } catch (e) {
+      console.log('Upload image User.......', e);
+      res.status(500).json({ msg: 'Server error' });
     }
   }
 }
