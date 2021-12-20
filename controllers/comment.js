@@ -8,23 +8,33 @@ export class CommentController extends BaseController {
     super(Comment);
   }
   async getByPostId(req, res) {
-    const where = { post_id: req.params.id };
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 5;
-    const offset = (page - 1) * limit || 0;
-    const comments = await this._Model.findAndCountAll({
-      where,
-      offset,
-      limit,
-    });
-    res.status(200).json(comments);
+    try {
+      const where = { post_id: req.params.id };
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 5;
+      const offset = (page - 1) * limit || 0;
+      const comments = await this._Model.findAndCountAll({
+        where,
+        offset,
+        limit,
+      });
+      res.status(200).json(comments);
+    } catch (e) {
+      console.log('Get Comment By Post Id........', e);
+      res.status(500).json({ msg: 'Server error' });
+    }
   }
 
   async createOne(req, res) {
-    const body = req.body;
-    body.user_id = req.user.id;
-    req.body = body;
-    return this.create(req, res);
+    try {
+      const body = req.body;
+      body.user_id = req.user.id;
+      req.body = body;
+      return this.create(req, res);
+    } catch (e) {
+      console.log('Create Comment.......', e);
+      res.status(500).json({ msg: 'Server error' });
+    }
   }
   async update(req, res) {
     try {
