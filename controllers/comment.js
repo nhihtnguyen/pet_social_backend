@@ -1,7 +1,8 @@
-import BaseController from './base_controller.js';
-import db from '../models/index.cjs';
+
+import BaseController from "./base_controller.js";
+import db from "../models/index.cjs";
 const { Comment } = db;
-import { REQUIRE_FIELDS } from '../constants/require_fields.js';
+import { REQUIRE_FIELDS } from "../constants/require_fields.js";
 
 export class CommentController extends BaseController {
   constructor() {
