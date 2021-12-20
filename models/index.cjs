@@ -42,7 +42,7 @@ Object.keys(db).forEach((modelName) => {
 // sequelize.sync({force: true})
 // because we use enum, we can not use sync alter to update record auto
 
-sequelize.sync();
+//sequelize.sync()
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
