@@ -17,18 +17,13 @@ export class PostController extends BaseController {
     const hashtags = req.body.caption.match(/#[a-z0-9_]+/g);
     const tags = hashtags?.map((tag) => ({ tag }));
     const custom_fields = { ...req.body, mentions, tags };
-    const Mentions = Post.hasMany(PetPost, {
-      foreignKey: 'post_id',
-      as: 'mentions',
-    });
-    const Tags = Post.hasMany(PostTag, { foreignKey: 'post_id', as: 'tags' });
 
     return this._Model
       .create(custom_fields, {
         fields: REQUIRE_FIELDS.Post,
-        include: [{ association: Mentions, Tags }],
+        include: [{ model: PetPost, as: 'mentions' }, {model: PostTag, as: 'tags'}],
       })
-      .then((record) => {
+      .then((record) => (
         client
           .index({
             index: 'post',
@@ -40,8 +35,8 @@ export class PostController extends BaseController {
           })
           .catch((err) => {
             console.error(err.message);
-          });
-      })
+          })
+      ))
       .catch((err) => {
         console.error(err.message);
         res.status(400).json(err);
@@ -51,7 +46,7 @@ export class PostController extends BaseController {
   async getExplore(req, res) {
     const page = req.query.page;
     //limit 5 record per page
-    const limit = page ? 5 : 100;
+    const limit = req.query.limit || 100;
     if (req.query.search) {
       return client
         .search({
@@ -60,7 +55,12 @@ export class PostController extends BaseController {
           size: limit,
           body: {
             query: {
-              match: { caption: req.query.search },
+              fuzzy: { 
+                caption: { value: req.query.search,
+                fuzziness: 1,
+                transpositions: false
+                },
+              },
             },
           },
         })
@@ -132,4 +132,5 @@ export class PostController extends BaseController {
       res.status(400).json(err);
     }
   }
+
 }

@@ -11,13 +11,10 @@ module.exports = (sequelize, DataTypes) => {
       Pet.hasMany(models.Paticipant, { foreignKey: "pet_id" });
       // Pet.hasMany(models.UserPet, { foreignKey: 'pet_id'})
       // Pet.hasMany(models.PetFollower, { foreignKey: 'pet_id'})
-      // Pet.hasMany(models.PetPost, { foreignKey: 'pet_id'})
       Pet.hasMany(models.PetStatus, { foreignKey: "pet_id" });
       // Pet.hasMany(models.PetBadges, { foreignKey: 'pet_id'})
-      Pet.belongsToMany(models.Post, {
-        through: "PetPost",
-        foreignKey: "pet_id",
-      });
+      Pet.hasMany(models.PetPost, { foreignKey: "pet_id" });
+
       Pet.belongsToMany(models.Badge, {
         through: "PetBadge",
         foreignKey: "pet_id",
