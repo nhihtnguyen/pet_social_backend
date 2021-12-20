@@ -5,6 +5,6 @@ const router = Router();
 
 const post_controller = new PostController();
 
-router.get('/post', (req, res) => post_controller.searchPost(req, res));
+router.get('/post', (req, res) => post_controller.getExplore(req, res));
 
 export default router;
