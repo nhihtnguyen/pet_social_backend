@@ -50,21 +50,47 @@ export class PetController extends BaseController {
 
     res.status(200).json(posts);
   }
-  async getByOwner(req, res) {
+
+  async getByUserId(req, res) {
     const userId = req.query.user_id;
-    const pets = await Pet.findAll({
-      include: [
-        {
-          model: User,
-          as: "pet",
-          required: true,
-          attributes: [],
-          where: {
-            "$pet.id$": userId,
+    try {
+      const pets = await Pet.findAll({
+        include: [
+          {
+            model: User,
+            as: "pet",
+            required: true,
+            attributes: [],
+            where: {
+              "$pet.id$": userId,
+            },
           },
-        },
-      ],
-    });
-    res.status(200).json(pets);
+        ],
+      });
+      res.status(200).json(pets);
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  }
+  async getByOwner(req, res) {
+    const userId = req.user.id;
+    try {
+      const pets = await Pet.findAll({
+        include: [
+          {
+            model: User,
+            as: "pet",
+            required: true,
+            attributes: [],
+            where: {
+              "$pet.id$": userId,
+            },
+          },
+        ],
+      });
+      res.status(200).json(pets);
+    } catch (error) {
+      res.status(500).json(error);
+    }
   }
 }
