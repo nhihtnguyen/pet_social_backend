@@ -17,10 +17,10 @@ router.post(
   '/',
   uploadImageServerMiddleware,
   uploadImageCloudinaryMiddleware,
-  (req, res) => controller.create(req, res)
+  (req, res) => res.json(req.body)
 );
 router.put(
-  '/:id',
+  '/post/:id',
   passport.authenticate('jwt', { session: false }),
   uploadImageServerMiddleware,
   uploadImageCloudinaryMiddleware,

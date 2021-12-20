@@ -1,11 +1,11 @@
-'use strict';
+"use strict";
 
-const fs = require('fs');
-const path = require('path');
-const Sequelize = require('sequelize');
+const fs = require("fs");
+const path = require("path");
+const Sequelize = require("sequelize");
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../config/config.json')[env];
+const env = process.env.NODE_ENV || "development";
+const config = require(__dirname + "/../config/config.json")[env];
 const db = {};
 
 let sequelize;
@@ -22,7 +22,7 @@ if (config.use_env_variable) {
 fs.readdirSync(__dirname)
   .filter((file) => {
     return (
-      file.indexOf('.') !== 0 && file !== basename && file.slice(-4) === '.cjs'
+      file.indexOf(".") !== 0 && file !== basename && file.slice(-4) === ".cjs"
     );
   })
   .forEach((file) => {
@@ -39,10 +39,10 @@ Object.keys(db).forEach((modelName) => {
   }
 });
 
-// sequelize.sync({ force: true });
+// sequelize.sync({force: true})
 // because we use enum, we can not use sync alter to update record auto
 
-// sequelize.sync();
+//sequelize.sync()
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

@@ -1,5 +1,7 @@
 'use strict';
-const { Model } = require('sequelize');
+const {
+  Model
+} = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class PetBadge extends Model {
     /**
@@ -10,19 +12,15 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
     }
-  }
-  PetBadge.init(
-    {
-      pet_id: DataTypes.INTEGER,
-      badge_id: DataTypes.INTEGER,
-      start: DataTypes.DATE,
-      end: DataTypes.DATE,
-    },
-    {
-      sequelize,
-      modelName: 'PetBadge',
-      underscored: true,
-    }
-  );
+  };
+  PetBadge.init({
+    pet_id: DataTypes.INTEGER,
+    badge_id: DataTypes.INTEGER,
+    start: DataTypes.DATE,
+    end: DataTypes.DATE
+  }, {
+    sequelize,
+    modelName: 'PetBadge',
+  });
   return PetBadge;
 };

@@ -12,123 +12,103 @@ export class PostController extends BaseController {
   }
 
   async create(req, res) {
-    try {
-      const pet_ids = req.body.mentions.split(',');
-      const mentions = pet_ids?.map((pet_id) => ({ pet_id }));
-      const hashtags = req.body.caption.match(/#[a-z0-9_]+/g);
-      const tags = hashtags?.map((tag) => ({ tag }));
-      const custom_fields = { ...req.body, mentions, tags };
-      const Mentions = Post.hasMany(PetPost, {
-        foreignKey: 'post_id',
-        as: 'mentions',
-      });
-      const Tags = post.hasMany(PostTag, {
-        foreignKey: 'post_id',
-        as: 'tags',
-      });
+    const pet_ids = req.body.mentions.split(',');
+    const mentions = pet_ids?.map((pet_id) => ({ pet_id }));
+    const hashtags = req.body.caption.match(/#[a-z0-9_]+/g);
+    const tags = hashtags?.map((tag) => ({ tag }));
+    const custom_fields = { ...req.body, mentions, tags };
+    const Mentions = Post.hasMany(PetPost, {
+      foreignKey: 'post_id',
+      as: 'mentions',
+    });
+    const Tags = Post.hasMany(PostTag, { foreignKey: 'post_id', as: 'tags' });
 
-      return this._Model
-        .create(custom_fields, {
-          fields: REQUIRE_FIELDS.post,
-          include: [{ association: Mentions, Tags }],
+    return this._Model
+      .create(custom_fields, {
+        fields: REQUIRE_FIELDS.Post,
+        include: [{ association: Mentions, Tags }],
+      })
+      .then((record) => {
+        client
+          .index({
+            index: 'post',
+            body: JSON.parse(JSON.stringify(record)),
+          })
+          .then((result) => {
+            console.log(result);
+            res.status(200).json(record);
+          })
+          .catch((err) => {
+            console.error(err.message);
+          });
+      })
+      .catch((err) => {
+        console.error(err.message);
+        res.status(400).json(err);
+      });
+  }
+
+  async getExplore(req, res) {
+    const page = req.query.page;
+    //limit 5 record per page
+    const limit = page ? 5 : 100;
+    if (req.query.search) {
+      return client
+        .search({
+          index: 'post',
+          from: (page - 1) * limit || 0,
+          size: limit,
+          body: {
+            query: {
+              match: { caption: req.query.search },
+            },
+          },
         })
-        .then((record) => {
-          client
-            .index({
-              index: 'post',
-              body: JSON.parse(JSON.stringify(record)),
-            })
-            .then((result) => {
-              console.log(result);
-              res.status(200).json(record);
-            })
-            .catch((err) => {
-              console.error(err.message);
-            });
+        .then((result) =>
+          res.status(200).send(result.body.hits.hits.map((hit) => hit._source))
+        );
+    } else {
+      return this._Model
+        .findAll({
+          order: [['updatedAt', 'ASC']],
+          limit: limit,
+          offset: (page - 1) * limit || 0,
+          include: [{ model: User, attributes: ['avatar'] }],
+        })
+        .then((records) => {
+          res.status(200).json(records);
         })
         .catch((err) => {
           console.error(err.message);
           res.status(400).json(err);
         });
-    } catch (e) {
-      console.log('Create Post........', e);
-      res.status(500).json({ msg: 'Server error' });
-    }
-  }
-
-  async getExplore(req, res) {
-    try {
-      const page = req.query.page;
-      //limit 5 record per page
-      const limit = page ? 5 : 100;
-      if (req.query.search) {
-        return client
-          .search({
-            index: 'post',
-            from: (page - 1) * limit || 0,
-            size: limit,
-            body: {
-              query: {
-                match: { caption: req.query.search },
-              },
-            },
-          })
-          .then((result) =>
-            res
-              .status(200)
-              .send(result.body.hits.hits.map((hit) => hit._source))
-          );
-      } else {
-        return this._Model
-          .findAll({
-            order: [['updated_at', 'ASC']],
-            limit: limit,
-            offset: (page - 1) * limit || 0,
-            include: [{ model: User, attributes: ['avatar'] }],
-          })
-          .then((records) => {
-            res.status(200).json(records);
-          })
-          .catch((err) => {
-            console.error(err.message);
-            res.status(400).json(err);
-          });
-      }
-    } catch (e) {
-      console.log('Get Explore........', e);
-      res.status(500).json({ msg: 'Server error' });
     }
   }
 
   async getByPetId(req, res) {
-    try {
-      const where = { pet_id: req.params.id };
-      const page = req.query.page || 1;
-      const limit = req.query.limit || 1;
-      const offset = (page - 1) * limit || 0;
-      const posts = await this._Model.findAll({
-        paginate: {},
-        include: [
-          {
-            model: Pet,
-            as: 'Pets',
-            attributes: ['id'],
-            required: true,
-            through: {
-              attributes: [],
-              where: {
-                '$Pets.id$': req.params.id,
-              },
+    const where = { pet_id: req.params.id };
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 1;
+    const offset = (page - 1) * limit || 0;
+    const posts = await this._Model.findAll({
+      paginate: {},
+      include: [
+        {
+          model: Pet,
+          as: 'Pets',
+          attributes: ['id'],
+          required: true,
+          through: {
+            attributes: [],
+            where: {
+              '$Pets.id$': req.params.id,
             },
           },
-        ],
-      });
+        },
+      ],
+    });
 
-      res.status(200).json(posts);
-    } catch (e) {
-      console.log('Get Post By Pet Id.........', e);
-      res.status(500).json({ msg: 'Server error' });
-    }
+    res.status(200).json(posts);
   }
   async update(req, res) {
     try {
@@ -148,8 +128,8 @@ export class PostController extends BaseController {
       });
       return res.status(200).json(updatedRecord);
     } catch (err) {
-      console.log('Update Post........', err);
-      res.status(500).json({ msg: 'Server error' });
+      console.error(err.message);
+      res.status(400).json(err);
     }
   }
 }

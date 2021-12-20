@@ -1,38 +1,36 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('pet_badges', {
+    await queryInterface.createTable('PetBadges', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER
       },
       pet_id: {
-        type: Sequelize.INTEGER,
-        references: { model: 'pets', key: 'id' },
+        type: Sequelize.INTEGER
       },
       badge_id: {
-        type: Sequelize.INTEGER,
-        references: { model: 'badges', key: 'id' },
+        type: Sequelize.INTEGER
       },
       start: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATE
       },
       end: {
-        type: Sequelize.DATE,
+        type: Sequelize.DATE
       },
-      created_at: {
+      createdAt: {
         allowNull: false,
-        type: Sequelize.DATE,
+        type: Sequelize.DATE
       },
-      updated_at: {
+      updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE,
-      },
+        type: Sequelize.DATE
+      }
     });
   },
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('pet_badges');
-  },
+    await queryInterface.dropTable('PetBadges');
+  }
 };

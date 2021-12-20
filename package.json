@@ -5,9 +5,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www",
-    "migrate-create": "npx sequelize-cli db:migrate",
-    "migrate-rollback": "npx sequelize-cli db:migrate:undo:all"
+    "dev": "nodemon ./bin/www"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^7.15.0",
