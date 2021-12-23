@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       User.hasMany(models.Post, { foreignKey: "user_id" });
       User.hasMany(models.Paticipant, { foreignKey: "user_id" });
-      User.belongsTo(models.Country, { foreignKey: "countryCode" });
+      User.belongsTo(models.Country, { foreignKey: "country_code" });
       User.belongsToMany(models.Pet, {
         through: "PetFollower",
         foreignKey: "follower_id",
@@ -26,14 +26,17 @@ module.exports = (sequelize, DataTypes) => {
   User.init(
     {
       email: DataTypes.STRING,
-      phoneNumber: DataTypes.STRING,
-      firstName: DataTypes.STRING,
-      lastName: DataTypes.STRING,
-      isActive: DataTypes.BOOLEAN,
-      isBlocked: DataTypes.BOOLEAN,
-      countryCode: DataTypes.INTEGER,
+      phone_number: DataTypes.STRING,
+      first_name: DataTypes.STRING,
+      last_name: DataTypes.STRING,
+      username: DataTypes.STRING,
+      facebook_id: DataTypes.STRING,
+      google_id: DataTypes.STRING,
+      is_active: DataTypes.BOOLEAN,
+      is_blocked: DataTypes.BOOLEAN,
+      country_code: DataTypes.INTEGER,
       avatar: DataTypes.TEXT,
-      password: DataTypes.TEXT,
+      password: DataTypes.TEXT
     },
     {
       sequelize,
