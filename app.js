@@ -23,6 +23,7 @@ export const __dirname = path.dirname(__filename);
 const app = express();
 app.use(
   cors({
+    credentials: true,
     origin: process.env.FRONT_END_DOMAIN,
   })
 );

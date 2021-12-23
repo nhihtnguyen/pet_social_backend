@@ -74,7 +74,7 @@ export class PetController extends BaseController {
   }
 
   async getByOwner(req, res) {
-    const userId = req.query.user_id;
+    const userId = req.user.id;
     const pets = await Pet.findAll({
       include: [
         {
