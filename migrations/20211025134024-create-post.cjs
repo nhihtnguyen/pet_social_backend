@@ -17,7 +17,7 @@ module.exports = {
       caption: {
         type: Sequelize.STRING,
       },
-      status: {
+      pos: {
         type: Sequelize.ENUM("allowed", "warning"),
       },
       upvote: {

@@ -14,14 +14,24 @@ module.exports = (sequelize, DataTypes) => {
        Post.hasMany(models.Comment, {foreignKey: 'post_id'});
        Post.hasMany(models.PetPost, {foreignKey: 'post_id', as: 'mentions'})
        Post.belongsTo(models.User, {foreignKey: 'user_id'});
-
     }
   };
   Post.init({
     user_id: DataTypes.INTEGER,
     media_URL: DataTypes.TEXT,
     caption: DataTypes.STRING,
-    pos: DataTypes.ENUM('below', 'inside'),
+    size: DataTypes.STRING,
+    status: {
+      type: DataTypes.STRING,
+      validate: {
+        customValidator: (value) => {
+        const enums = ['allowed','warning']
+          if (!enums.includes(value)) {
+            throw new Error('not a valid option')
+          }
+        }
+      }
+    },
     upvote: DataTypes.INTEGER,
     downvote: DataTypes.INTEGER
   }, {

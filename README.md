@@ -11,7 +11,9 @@
 * Run `sequelize db:migrate` 
 * Run `npm run dev` or `npm start`
 
-#To create model and migration
+#To create model
 `sequelize model:create --name Model --attributes attr:string`
+#To create new migration
+`sequelize migration:create --name file_name`
 #To rollback migration
 `db:migrate:undo`
