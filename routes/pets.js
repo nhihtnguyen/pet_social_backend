@@ -7,6 +7,7 @@ import { PetController } from "../controllers/pet.js";
 const controller = new PetController();
 
 //router.get("/", (req, res) => controller.getAll(req, res));
+
 router.get("/", (req, res) => controller.getByUserId(req, res));
 router.get(
   "/owner",

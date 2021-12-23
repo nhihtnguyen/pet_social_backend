@@ -33,7 +33,7 @@ const cookieExtractor = (req) => {
 };
 
 const jwtOptions = {
-  jwtFromRequest: cookieExtractor,
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: JWT_ACCESS_TOKEN_SERECT,
 };
 
@@ -107,19 +107,13 @@ export class AuthController extends BaseController {
           */
 
           res
-            .status(200)
-            .cookie("authentication", accessToken, {
-              expires: new Date(Date.now() + JWT_ACCESS_TOKEN_EXPIRATION),
-              //secure: true,
-              httpOnly: true,
-            })
             .cookie("refresh", refreshToken, {
               expires: new Date(Date.now() + JWT_REFRESH_TOKEN_EXPIRATION),
               //secure: true,
               httpOnly: true,
             })
             .status(200)
-            .json({ msg: "Success" });
+            .json({ msg: "Success", accessToken });
         } catch (error) {
           console.log(error);
         }
@@ -193,7 +187,7 @@ export class AuthController extends BaseController {
             httpOnly: true,
           })
           .status(200)
-          .json("Refresh token success")
+          .json({ msg: "Refresh Success", accessToken: token })
           .end();
       } catch (error) {
         console.error(error);
