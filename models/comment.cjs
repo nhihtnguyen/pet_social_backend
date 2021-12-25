@@ -23,6 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Comment",
+      createdAt: 'created_at',
+      updatedAt: 'updated_at'
     }
   );
   return Comment;

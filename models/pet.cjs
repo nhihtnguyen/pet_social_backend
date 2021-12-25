@@ -41,6 +41,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Pet",
+      createdAt: 'created_at',
+      updatedAt: 'updated_at'
     }
   );
   return Pet;
