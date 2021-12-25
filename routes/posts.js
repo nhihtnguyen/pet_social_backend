@@ -20,6 +20,7 @@ router.get("/pet/:id", (req, res) => controller.getByPetId(req, res));
 
 router.post(
   "/",
+  passport.authenticate("jwt", { session: false }),
   uploadImageServerMiddleware,
   uploadImageCloudinaryMiddleware,
   (req, res) => controller.create(req, res)

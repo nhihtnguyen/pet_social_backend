@@ -12,11 +12,12 @@ export class PostController extends BaseController {
   }
 
   async create(req, res) {
+    const userId = req.user.id;
     const pet_ids = req.body.mentions.split(",");
     const mentions = pet_ids?.map((pet_id) => ({ pet_id }));
     const hashtags = req.body.caption.match(/#[a-z0-9_]+/g);
     const tags = hashtags?.map((tag) => ({ tag }));
-    const custom_fields = { ...req.body, mentions, tags };
+    const custom_fields = { ...req.body, mentions, tags, user_id: userId };
 
     try {
       let record = await this._Model.create(custom_fields, {
@@ -32,12 +33,13 @@ export class PostController extends BaseController {
       let user = await User.findByPk(record.user_id);
       record = JSON.parse(JSON.stringify(record));
       record.pet_names = pets.map((pet) => pet.name);
-      record.user_name = user.firstName + ' ' + user.lastName;
-
+      record.user_name = user.first_name + " " + user.last_name;
+      /*
       await client.index({
         index: "post",
         body: record,
       });
+      */
 
       console.log(record);
       return res.json(record);
@@ -60,9 +62,9 @@ export class PostController extends BaseController {
           body: {
             query: {
               multi_match: {
-                fields:  [ "pet_names", "caption" ],
-                query:  req.query.search,
-                fuzziness: 1
+                fields: ["pet_names", "caption"],
+                query: req.query.search,
+                fuzziness: 1,
               },
             },
           },

@@ -72,7 +72,6 @@ export class AuthController extends BaseController {
       const payload = { id: user.id };
       try {
         // Get access token
-        console.log(JWT_REFRESH_TOKEN_EXPIRATION);
         const accessToken = await jwt.sign(payload, JWT_ACCESS_TOKEN_SERECT, {
           expiresIn: `${JWT_ACCESS_TOKEN_EXPIRATION}`,
         });
@@ -181,11 +180,6 @@ export class AuthController extends BaseController {
           expiresIn: `${JWT_ACCESS_TOKEN_EXPIRATION}`,
         });
         return res
-          .cookie("authentication", token, {
-            expires: new Date(Date.now() + JWT_ACCESS_TOKEN_EXPIRATION),
-            //secure: true,
-            httpOnly: true,
-          })
           .status(200)
           .json({ msg: "Refresh Success", accessToken: token })
           .end();
