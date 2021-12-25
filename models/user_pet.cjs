@@ -21,6 +21,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'UserPet',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   });
   return UserPet;
 };

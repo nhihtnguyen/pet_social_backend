@@ -73,11 +73,11 @@ export class AuthController extends BaseController {
       try {
         // Get access token
         const accessToken = await jwt.sign(payload, JWT_ACCESS_TOKEN_SERECT, {
-          expiresIn: `${JWT_ACCESS_TOKEN_EXPIRATION}`,
+          expiresIn: JWT_ACCESS_TOKEN_EXPIRATION,
         });
         // Get refresh token
         const refreshToken = await jwt.sign(payload, JWT_REFRESH_TOKEN_SERECT, {
-          expiresIn: `${JWT_REFRESH_TOKEN_EXPIRATION}`,
+          expiresIn: JWT_REFRESH_TOKEN_EXPIRATION,
         });
         // Store: local/database/redis
         refreshArray[refreshToken] = payload;

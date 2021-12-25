@@ -19,6 +19,8 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Country',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   });
   return Country;
 };
