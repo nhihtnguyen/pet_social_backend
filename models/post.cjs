@@ -18,10 +18,21 @@ module.exports = (sequelize, DataTypes) => {
   };
   Post.init({
     user_id: DataTypes.INTEGER,
-    media_URL: DataTypes.TEXT,
+    media_url: DataTypes.TEXT,
     caption: DataTypes.STRING,
     size: DataTypes.STRING,
-    status: {
+    image_status: {
+      type: DataTypes.STRING,
+      validate: {
+        customValidator: (value) => {
+        const enums = ['allowed','warning']
+          if (!enums.includes(value)) {
+            throw new Error('not a valid option')
+          }
+        }
+      }
+    },
+    caption_status: {
       type: DataTypes.STRING,
       validate: {
         customValidator: (value) => {

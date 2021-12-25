@@ -36,7 +36,8 @@ module.exports = (sequelize, DataTypes) => {
       is_blocked: DataTypes.BOOLEAN,
       country_code: DataTypes.INTEGER,
       avatar: DataTypes.TEXT,
-      password: DataTypes.TEXT
+      password: DataTypes.TEXT,
+      background: DataTypes.STRING
     },
     {
       sequelize,
