@@ -48,6 +48,27 @@ export class PostController extends BaseController {
       res.status(400).json(err);
     }
   }
+  async getById(req, res) {
+    return this._Model
+      .findByPk(req.params.id, {
+        include: [
+          {
+            model: PetPost,
+            as: "mentions",
+          },
+        ],
+      })
+      .then((record) => {
+        if (!record) {
+          return res.status(404).send("Record Not Found");
+        }
+        res.status(200).json(record);
+      })
+      .catch((err) => {
+        console.error(err.message);
+        res.status(400).json(err);
+      });
+  }
 
   async getExplore(req, res) {
     const page = req.query.page;
@@ -75,7 +96,7 @@ export class PostController extends BaseController {
     } else {
       return this._Model
         .findAll({
-          order: [["updatedAt", "ASC"]],
+          order: [["updated_at", "ASC"]],
           limit: limit,
           offset: (page - 1) * limit || 0,
           include: [{ model: User, attributes: ["avatar"] }],

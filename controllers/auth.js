@@ -124,7 +124,7 @@ export class AuthController extends BaseController {
   };
 
   register = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, first_name, last_name } = req.body;
 
     if (email && password) {
       const user = await this.getUser({ email });
@@ -136,6 +136,8 @@ export class AuthController extends BaseController {
       const newUser = {
         email,
         password: bcrypt.hashSync(password, BCRYPT_SALT),
+        first_name,
+        last_name,
       };
       req.body = newUser;
       return this.create(req, res);
@@ -177,7 +179,7 @@ export class AuthController extends BaseController {
       try {
         jwt.verify(refreshToken, JWT_REFRESH_TOKEN_SERECT);
         const token = await jwt.sign(payload, JWT_ACCESS_TOKEN_SERECT, {
-          expiresIn: `${JWT_ACCESS_TOKEN_EXPIRATION}`,
+          expiresIn: JWT_ACCESS_TOKEN_EXPIRATION,
         });
         return res
           .status(200)
