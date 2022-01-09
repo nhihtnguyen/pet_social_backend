@@ -26,7 +26,7 @@ router.post(
   (req, res) => controller.create(req, res)
 );
 router.put(
-  "/post/:id",
+  "/:id",
   passport.authenticate("jwt", { session: false }),
   uploadImageServerMiddleware,
   uploadImageCloudinaryMiddleware,

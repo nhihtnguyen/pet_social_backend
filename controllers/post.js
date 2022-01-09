@@ -12,6 +12,7 @@ export class PostController extends BaseController {
   }
 
   async create(req, res) {
+    console.log("body", req.body);
     const userId = req.user.id;
     const pet_ids = req.body.mentions.split(",");
     const mentions = pet_ids?.map((pet_id) => ({ pet_id }));
@@ -56,6 +57,10 @@ export class PostController extends BaseController {
             model: PetPost,
             as: "mentions",
           },
+          {
+            model: User,
+            attributes: ["avatar", "id", "first_name", "last_name"],
+          },
         ],
       })
       .then((record) => {
@@ -99,7 +104,12 @@ export class PostController extends BaseController {
           order: [["updated_at", "ASC"]],
           limit: limit,
           offset: (page - 1) * limit || 0,
-          include: [{ model: User, attributes: ["avatar"] }],
+          include: [
+            {
+              model: User,
+              attributes: ["avatar", "id", "first_name", "last_name"],
+            },
+          ],
         })
         .then((records) => {
           res.status(200).json(records);
