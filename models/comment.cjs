@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Comment.belongsTo(models.Post, { foreignKey: "post_id" });
+      Comment.belongsTo(models.User, { foreignKey: "user_id" });
     }
   }
   Comment.init(
@@ -23,8 +24,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Comment",
-      createdAt: 'created_at',
-      updatedAt: 'updated_at'
+      createdAt: "created_at",
+      updatedAt: "updated_at",
     }
   );
   return Comment;
