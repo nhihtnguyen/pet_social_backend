@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { uploadImageServerMiddleware } from "../middleware/upload_image_server.mdw.js";
 import { uploadImageCloudinaryMiddleware } from "../middleware/upload_image_cloudinary.mdw.js";
+import { verifyImage } from "../middleware/verify_image.mdw.js";
+import { verifyTextMiddleware } from "../middleware/verify_text.mdw.js";
 import { PostController } from "../controllers/post.js";
 import passport from "passport";
 const router = Router();
@@ -22,6 +24,8 @@ router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
   uploadImageServerMiddleware,
+  verifyTextMiddleware("caption"),
+  verifyImage,
   uploadImageCloudinaryMiddleware,
   (req, res) => controller.create(req, res)
 );
