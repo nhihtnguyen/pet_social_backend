@@ -1,4 +1,12 @@
-import bad_words_dic from "../services/bad_words.json";
+import dotenv from "dotenv";
+dotenv.config();
+import axios from "axios";
+import FormData from "form-data";
+
+import { readFile } from "fs/promises";
+const bad_words_dic = JSON.parse(
+  await readFile(new URL("../services/bad_words.json", import.meta.url))
+);
 
 const STATUS = {
   allowed: 1,
@@ -23,12 +31,14 @@ export const checkCaptionStatus = (caption) => {
 export const verifyTextMiddleware =
   (fieldNameBody) => async (req, res, next) => {
     let captionStatus = STATUS["allowed"];
+    console.log("1");
+
     // Check null
-    if (req.body[fieldNameBody] && req.body[fieldNameBody].strip() === "") {
+    if (req.body[fieldNameBody] && req.body[fieldNameBody] === "") {
       //
       return res.json({ message: "Text is required" });
     }
-
+    console.log("1");
     // Check bad words
     try {
       captionStatus = checkCaptionStatus(req.body[fieldNameBody]);
@@ -44,29 +54,24 @@ export const verifyTextMiddleware =
       captionStatus !== STATUS["denied"] &&
       data.caption.split(" ").length >= 4
     ) {
+      console.log("1");
+
       // Check caption 2
       try {
         let newForm = new FormData();
         newForm.append("text", req.body[fieldNameBody]);
         newForm.append("model_choice", "model_1");
-        captionStatus = await axiosClient.post(
+        captionStatus = await axios.post(
           "http://localhost:5005/text",
           newForm,
           {
-            headers: { "Content-Type": "multipart/form-data" },
+            headers: { ...newForm.getHeaders() },
           }
         );
         captionStatus =
           Number(captionStatus.data["result"]) === 1.0
             ? STATUS["allowed"]
             : STATUS["warning"];
-        if (captionStatus === STATUS["denied"]) {
-          return res.json({
-            message: "Text is denied",
-            status: captionStatus,
-          });
-        }
-        next();
       } catch (error) {
         // logging
         console.log(error);
@@ -75,4 +80,11 @@ export const verifyTextMiddleware =
         });
       }
     }
+    if (captionStatus === STATUS["denied"]) {
+      return res.json({
+        message: "Text is denied",
+        status: captionStatus,
+      });
+    }
+    next();
   };

@@ -1,5 +1,8 @@
 import dotenv from "dotenv";
 dotenv.config();
+import axios from "axios";
+import FormData from "form-data";
+import fs from "fs";
 
 const MIN_CONFIDENCE = 0.4;
 const A_CONFIDENCE = 0.7;
@@ -49,20 +52,24 @@ export const checkImageStatus = (res) => {
   return STATUS["denied"];
 };
 
-export const uploadImageServerMiddleware = async (req, res, next) => {
+export const verifyImage = async (req, res, next) => {
   if (req.file) {
     let imageStatus = STATUS["allowed"];
 
     let newForm = new FormData();
-    newForm.append("file", req.file);
+    const file = await fs.readFileSync(req.file.path);
+    newForm.append("file", file, req.file.originalname);
     newForm.append("model_choice", "last");
     newForm.append("result_type", "json");
 
     try {
-      imageStatus = await axiosClient.post("http://localhost:5000", newForm, {
-        headers: { "Content-Type": "multipart/form-data" },
+      imageStatus = await axios.post("http://localhost:5000", newForm, {
+        headers: {
+          ...newForm.getHeaders(),
+        },
       });
       imageStatus = checkImageStatus(imageStatus.data);
+      console.log("imagestatus: ", imageStatus);
       if (imageStatus === STATUS["denied"]) {
         return res.json({ message: "Image is denied", status: imageStatus });
       }
