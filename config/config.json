@@ -1,6 +1,10 @@
 {
   "development": {
-    "url": "postgres://hzvptoqbkefsku:344024539ca329678f735b8f5a00f8e8b0ae318560f6f48ff2ed5613289fd2f6@ec2-184-73-243-101.compute-1.amazonaws.com:5432/dgqh89acq5ak8",
+    "username": "postgres",
+    "password": "postgres",
+    "database": "web_development",
+    "host": "localhost",
+    "port": 3005,
     "dialect": "postgres"
   },
   "test": {
