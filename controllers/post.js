@@ -2,9 +2,11 @@ import BaseController from "./base_controller.js";
 import { REQUIRE_FIELDS } from "../constants/require_fields.js";
 import db from "../models/index.cjs";
 import { Client } from "@elastic/elasticsearch";
+import dotenv from "dotenv";
+dotenv.config();
 const { Post, PetPost, PostTag, User, Pet } = db;
 
-const client = new Client({ node: "http://localhost:9200" });
+const client = new Client({ node: process.env.ELASTIC_SEARCH_URL });
 
 export class PostController extends BaseController {
   constructor() {

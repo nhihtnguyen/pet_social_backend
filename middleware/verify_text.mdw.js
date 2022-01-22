@@ -62,7 +62,7 @@ export const verifyTextMiddleware =
         newForm.append("text", req.body[fieldNameBody]);
         newForm.append("model_choice", "model_1");
         captionStatus = await axios.post(
-          "http://localhost:5005/text",
+          process.env.NLP_URL,
           newForm,
           {
             headers: { ...newForm.getHeaders() },

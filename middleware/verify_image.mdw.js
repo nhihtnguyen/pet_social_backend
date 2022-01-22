@@ -63,7 +63,7 @@ export const verifyImage = async (req, res, next) => {
     newForm.append("result_type", "json");
 
     try {
-      imageStatus = await axios.post("http://localhost:5000", newForm, {
+      imageStatus = await axios.post(process.env.IMAGE_DETECTION_URL, newForm, {
         headers: {
           ...newForm.getHeaders(),
         },
