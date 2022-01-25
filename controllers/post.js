@@ -123,25 +123,60 @@ export class PostController extends BaseController {
     }
   }
 
+  async getByOwner(req, res) {
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 1;
+    const offset = (page - 1) * limit || 0;
+    const posts = await this._Model.findAll({
+      limit,
+      offset,
+      include: [
+        {
+          model: User,
+          attributes: ["id", "avatar", "first_name", "last_name"],
+          required: true,
+          where: { "$User.id$": req.user.id },
+        },
+      ],
+    });
+
+    res.status(200).json(posts);
+  }
+  async getByUserID(req, res) {
+    const userID = req.params.id;
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 1;
+    const offset = (page - 1) * limit || 0;
+    const posts = await this._Model.findAll({
+      limit,
+      offset,
+      include: [
+        {
+          model: User,
+          attributes: ["id", "avatar", "first_name", "last_name"],
+          required: true,
+          where: { "$User.id$": userID },
+        },
+      ],
+    });
+
+    res.status(200).json(posts);
+  }
   async getByPetId(req, res) {
     const where = { pet_id: req.params.id };
     const page = req.query.page || 1;
     const limit = req.query.limit || 1;
     const offset = (page - 1) * limit || 0;
     const posts = await this._Model.findAll({
-      paginate: {},
+      limit,
+      offset,
       include: [
         {
           model: Pet,
           as: "Pets",
           attributes: ["id"],
           required: true,
-          through: {
-            attributes: [],
-            where: {
-              "$Pets.id$": req.params.id,
-            },
-          },
+          where: { "$Pets.id$": userID },
         },
       ],
     });
