@@ -8,6 +8,8 @@ import passport from "passport";
 const router = Router();
 
 const controller = new PostController();
+router.get("/user/:id", (req, res) => controller.getByUserID(req, res));
+
 //router.get("/", (req, res) => controller.getAll(req, res));
 router.get("/explore", (req, res) => controller.getExplore(req, res));
 //router.get("/recommend", (req, res) => controller.getAll(req, res));
