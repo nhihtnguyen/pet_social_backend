@@ -25,9 +25,10 @@ export class UserController extends BaseController {
     }
   }
   async getByOwner(req, res) {
-    const user_id = req.user.id;
+    const email = req.user.email;
     return this._Model
-      .findByPk(user_id, {
+      .findOne({
+        where: { email },
         attributes: [
           "id",
           "first_name",

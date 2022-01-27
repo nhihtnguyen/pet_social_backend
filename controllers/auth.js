@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import redisClient from "../services/redis_service.js";
+import { Magic } from "@magic-sdk/admin";
+const magic = new Magic(process.env.MAGIC_SECRET_KEY);
 dotenv.config();
 
 const JWT_ACCESS_TOKEN_SERECT = process.env.JWT_ACCESS_TOKEN_SERECT || "abc";
@@ -14,6 +16,7 @@ const JWT_ACCESS_TOKEN_EXPIRATION =
 const JWT_REFRESH_TOKEN_SERECT = process.env.JWT_REFRESH_TOKEN_SERECT || "abc1";
 const JWT_REFRESH_TOKEN_EXPIRATION =
   Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION) || 100000;
+const NODE_ENV = process.env.NODE_ENV;
 // Bcrypt salt
 const BCRYPT_SALT = process.env.BCRYPT_SALT || 8;
 
@@ -41,7 +44,8 @@ export class AuthController extends BaseController {
   constructor() {
     super(User);
     this.strategy = new Strategy(jwtOptions, async (payload, next) => {
-      const user = await this.getUser({ id: payload.id });
+      console.log(payload);
+      const user = await this.getUser({ email: payload.email });
       if (user) {
         next(null, user);
       } else {
@@ -57,69 +61,38 @@ export class AuthController extends BaseController {
       where: obj,
     });
   };
-  login = async (req, res, next) => {
-    const { email, password } = req.body;
-    if (email && password) {
-      const user = await this.getUser({ email });
-      if (!user) {
-        return res.status(401).json({ msg: "User is not exist" });
-      }
 
-      if (!bcrypt.compareSync(password, user.password)) {
-        return res.status(401).json({ msg: "Password is incorrect" });
-      }
-      // Payload
-      const payload = { id: user.id };
-      try {
-        // Get access token
-        const accessToken = await jwt.sign(payload, JWT_ACCESS_TOKEN_SERECT, {
-          expiresIn: JWT_ACCESS_TOKEN_EXPIRATION,
-        });
-        // Get refresh token
-        const refreshToken = await jwt.sign(payload, JWT_REFRESH_TOKEN_SERECT, {
-          expiresIn: JWT_REFRESH_TOKEN_EXPIRATION,
-        });
-        // Store: local/database/redis
-        refreshArray[refreshToken] = payload;
-        // Redis
+  login = async (req, res) => {
+    try {
+      console.log(req.headers);
+      const didToken = req.headers.authorization.substr(7);
 
-        try {
-          /* redisClient.set(
-            refreshToken,
-            JSON.stringify(payload),
-            (err, reply) => {
-              if (err) throw err;
-              console.log(reply);
-              redisClient.expire(
-                refreshToken,
-                JWT_REFRESH_TOKEN_EXPIRATION,
-                (err, reply) => {
-                  if (err) throw err;
-                  console.log(reply);
-                  redisClient.get(refreshToken, (err, reply) => {
-                    if (err) throw err;
-                  });
-                }
-              );
-            }
-          );
-          */
+      await magic.token.validate(didToken);
 
-          res
-            .cookie("refresh", refreshToken, {
-              expires: new Date(Date.now() + JWT_REFRESH_TOKEN_EXPIRATION),
-              //secure: true,
-              httpOnly: true,
-            })
-            .status(200)
-            .json({ msg: "Success", accessToken });
-        } catch (error) {
-          console.log(error);
-        }
-      } catch (err) {
-        res.status(500).json({ msg: "Server got error in logging" });
-        throw err;
-      }
+      const metadata = await magic.users.getMetadataByToken(didToken);
+
+      // Create JWT with information about the user, expires in `SESSION_LENGTH_IN_DAYS`, and signed by `JWT_SECRET`
+      const accessToken = await jwt.sign(metadata, JWT_ACCESS_TOKEN_SERECT, {
+        expiresIn: JWT_ACCESS_TOKEN_EXPIRATION,
+      });
+      const refreshToken = await jwt.sign(metadata, JWT_REFRESH_TOKEN_SERECT, {
+        expiresIn: JWT_REFRESH_TOKEN_EXPIRATION,
+      });
+
+      refreshArray[refreshToken] = metadata;
+
+      res
+        .status(200)
+        .cookie("refresh", refreshToken, {
+          expires: new Date(Date.now() + JWT_REFRESH_TOKEN_EXPIRATION),
+          secure: NODE_ENV === "production",
+          httpOnly: true,
+        })
+        .json({ msg: "Success", accessToken, metadata })
+        .end();
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ msg: "Server got error in logging" });
     }
   };
 
@@ -143,16 +116,33 @@ export class AuthController extends BaseController {
       return this.create(req, res);
     }
   };
+
   logout = async (req, res) => {
-    res
-      .status(200)
-      .cookie("refresh", {
-        expires: new Date.now(),
-        //secure: true,
-        httpOnly: true,
-      })
-      .status(200)
-      .json("ok");
+    try {
+      const token = req.cookies.refresh;
+
+      if (!token) {
+        return res.status(401).json({ message: "User is not logged in" });
+      }
+
+      let user = jwt.verify(token, JWT_REFRESH_TOKEN_SERECT);
+
+      try {
+        await magic.users.logoutByIssuer(user.issuer);
+      } catch (error) {
+        console.log("Users session with Magic already expired");
+      }
+
+      res
+        .cookie("refresh", {
+          expires: new Date.now(),
+          httpOnly: true,
+        })
+        .writeHead(302, { Location: "/login" });
+      res.end();
+    } catch (error) {
+      res.status(401).json({ message: "User is not logged in" });
+    }
   };
 
   refresh = async (req, res) => {
