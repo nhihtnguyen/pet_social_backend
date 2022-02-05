@@ -1,6 +1,7 @@
 import BaseController from "./base_controller.js";
 import db from "../models/index.cjs";
-const { Pet, Post, User, UserPet, PetPost } = db;
+const { Pet, Post, User, UserPet, PetPost, PetFollower } = db;
+
 import { REQUIRE_FIELDS } from "../constants/require_fields.js";
 
 export class PetController extends BaseController {
@@ -47,7 +48,7 @@ export class PetController extends BaseController {
       }
       return res.status(200).json(pet);
     } catch (error) {
-      res.status(400).json(error);
+      res.status(400).json(error.message);
     }
   }
   async getPosts(req, res) {
@@ -75,7 +76,7 @@ export class PetController extends BaseController {
   }
 
   async getByUserId(req, res) {
-    const userId = req.query.user_id;
+    const userId = req.user.id;
     try {
       const pets = await Pet.findAll({
         include: [
@@ -92,7 +93,7 @@ export class PetController extends BaseController {
       });
       res.status(200).json(pets);
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json(error.message);
     }
   }
 
@@ -146,6 +147,35 @@ export class PetController extends BaseController {
       // Logging
       console.log(error);
       res.status(500).json(error);
+    }
+  }
+
+  async getSummary(req, res) {
+    const petId = req.params.id;
+    try {
+      const totalPosts = await PetPost.count({
+        where: { pet_id: petId },
+      });
+      const totalFollowers = await PetFollower.count({
+        where: { pet_id: petId },
+      });
+      res
+        .status(200)
+        .json({ total_posts: totalPosts, total_followers: totalFollowers });
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  }
+
+  async listPets(req, res) {
+    const pet_ids = req.query.pet_ids.split(",");
+    try {
+      const list_pets = await Pet.findAll({
+        where: { id: pet_ids },
+      });
+      res.status(200).json(list_pets);
+    } catch (error) {
+      res.status(500).json(error.message);
     }
   }
 }
