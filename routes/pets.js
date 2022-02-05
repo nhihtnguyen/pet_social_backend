@@ -9,9 +9,8 @@ import { uploadImageServerMiddleware } from "../middleware/upload_image_server.m
 
 const controller = new PetController();
 
-//router.get("/", (req, res) => controller.getAll(req, res));
-
-router.get("/", (req, res) => controller.getByUserId(req, res));
+router.get("/list", (req, res) => controller.listPets(req, res));
+router.get("/", passport.authenticate("jwt", { session: false }), (req, res) => controller.getByUserId(req, res));
 router.get(
   "/owner",
   passport.authenticate("jwt", { session: false }),
@@ -20,6 +19,7 @@ router.get(
 router.get("/:id/siblings", (req, res) => controller.getBySibling(req, res));
 router.get("/:id/posts", (req, res) => controller.getPosts(req, res));
 router.get("/:id", (req, res) => controller.getById(req, res));
+router.get("/:id/summary", (req, res) => controller.getSummary(req, res));
 router.post("/", passport.authenticate("jwt", { session: false }), (req, res) =>
   controller.createOne(req, res)
 );
