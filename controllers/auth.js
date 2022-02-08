@@ -64,12 +64,30 @@ export class AuthController extends BaseController {
 
   login = async (req, res) => {
     try {
-      console.log(req.headers);
       const didToken = req.headers.authorization.substr(7);
 
       await magic.token.validate(didToken);
 
       const metadata = await magic.users.getMetadataByToken(didToken);
+
+      let user = await this.getUser({ email: metadata.email });
+
+      // Check if new user, create a register into database
+      if (!user) {
+        try {
+          const { first_name, last_name } = req.body;
+
+          const newUser = {
+            email: metadata.email,
+            first_name,
+            last_name,
+          };
+          req.body = newUser;
+          user = await this._Model.create(req.body);
+        } catch (error) {
+          res.status(400).json(err);
+        }
+      }
 
       // Create JWT with information about the user, expires in `SESSION_LENGTH_IN_DAYS`, and signed by `JWT_SECRET`
       const accessToken = await jwt.sign(metadata, JWT_ACCESS_TOKEN_SERECT, {
@@ -97,23 +115,50 @@ export class AuthController extends BaseController {
   };
 
   register = async (req, res) => {
-    const { email, password, first_name, last_name } = req.body;
+    try {
+      const didToken = req.headers.authorization.substr(7);
 
-    if (email && password) {
-      const user = await this.getUser({ email });
+      await magic.token.validate(didToken);
 
-      if (user) {
-        return res.status(401).json({ msg: "User has already exist" });
+      const metadata = await magic.users.getMetadataByToken(didToken);
+
+      const user = await this.getUser({ email: metadata.email });
+
+      // Check if new user, create a register into database
+      if (!user) {
+        const { first_name, last_name } = req.body;
+
+        const newUser = {
+          email,
+          first_name,
+          last_name,
+        };
+        req.body = newUser;
+        await this.create(req, res);
       }
 
-      const newUser = {
-        email,
-        password: bcrypt.hashSync(password, BCRYPT_SALT),
-        first_name,
-        last_name,
-      };
-      req.body = newUser;
-      return this.create(req, res);
+      // Create JWT with information about the user, expires in `SESSION_LENGTH_IN_DAYS`, and signed by `JWT_SECRET`
+      const accessToken = await jwt.sign(metadata, JWT_ACCESS_TOKEN_SERECT, {
+        expiresIn: JWT_ACCESS_TOKEN_EXPIRATION,
+      });
+      const refreshToken = await jwt.sign(metadata, JWT_REFRESH_TOKEN_SERECT, {
+        expiresIn: JWT_REFRESH_TOKEN_EXPIRATION,
+      });
+
+      refreshArray[refreshToken] = metadata;
+
+      res
+        .status(200)
+        .cookie("refresh", refreshToken, {
+          expires: new Date(Date.now() + JWT_REFRESH_TOKEN_EXPIRATION),
+          secure: NODE_ENV === "production",
+          httpOnly: true,
+        })
+        .json({ msg: "Success", accessToken, metadata })
+        .end();
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ msg: "Server got error in logging" });
     }
   };
 
