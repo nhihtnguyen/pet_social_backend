@@ -6,6 +6,22 @@ export class EventController extends BaseController {
   constructor() {
     super(Event);
   }
+  async getAll(req, res) {
+    try {
+      const page = req.query.page;
+      const limit = req.query.limit || 10;
+      let sortBy = req.query.sortBy;
+      const records = await this._Model.findAll({
+        order: [["updated_at", "ASC"]],
+        limit: limit,
+        offset: (page - 1) * limit || 0,
+      });
+      res.status(200).json(records);
+    } catch (error) {
+      console.error(error.message);
+      res.status(400).json(err);
+    }
+  }
   async createOne(req, res) {
     const body = req.body;
     body.user_id = req.user.id;

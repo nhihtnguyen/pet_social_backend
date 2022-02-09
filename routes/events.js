@@ -5,7 +5,7 @@ import passport from "passport";
 
 const controller = new EventController();
 
-router.get("/post/:id", (req, res) => controller.getByPostId(req, res));
+router.get("/", (req, res) => controller.getAll(req, res));
 router.get("/:id", (req, res) => controller.getById(req, res));
 router.post("/", passport.authenticate("jwt", { session: false }), (req, res) =>
   controller.createOne(req, res)
