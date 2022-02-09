@@ -4,7 +4,7 @@ import db from "../models/index.cjs";
 import { Client } from "@elastic/elasticsearch";
 import dotenv from "dotenv";
 dotenv.config();
-const { Post, PetPost, PostTag, User, Pet } = db;
+const { Post, PetPost, PostTag, User, Pet, Vote, Comment } = db;
 
 const client = new Client({ node: process.env.ELASTIC_SEARCH_URL });
 
@@ -205,4 +205,30 @@ export class PostController extends BaseController {
       res.status(400).json(err);
     }
   }
+  async getNumberOfComments(req, res) {
+    const postId = req.params.id;
+    try {
+      const totalComments = await Comment.count({
+        where: { post_id: postId },
+      });
+
+      res.status(200).json({ total_comments: totalComments });
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  }
+  report = (type) => async (req, res) => {
+    const postId = req.params.id;
+    try {
+      let record = await this._Model.findOne({ where: { id: postId } });
+      if (!record) {
+        return res.status(404).send("Record Not Found");
+      }
+      record[type] = "warning";
+      await record.save();
+      res.status(200).json(record);
+    } catch (error) {
+      res.status(500).json(error.message);
+    }
+  };
 }

@@ -52,7 +52,7 @@ export const verifyTextMiddleware =
 
     if (
       captionStatus !== STATUS["denied"] &&
-      data.caption.split(" ").length >= 4
+      req.body[fieldNameBody].split(" ").length >= 4
     ) {
       console.log("1");
 
@@ -61,13 +61,9 @@ export const verifyTextMiddleware =
         let newForm = new FormData();
         newForm.append("text", req.body[fieldNameBody]);
         newForm.append("model_choice", "model_1");
-        captionStatus = await axios.post(
-          process.env.NLP_URL,
-          newForm,
-          {
-            headers: { ...newForm.getHeaders() },
-          }
-        );
+        captionStatus = await axios.post(process.env.NLP_URL, newForm, {
+          headers: { ...newForm.getHeaders() },
+        });
         captionStatus =
           Number(captionStatus.data["result"]) === 1.0
             ? STATUS["allowed"]

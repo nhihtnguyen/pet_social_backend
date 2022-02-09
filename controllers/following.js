@@ -54,47 +54,57 @@ export class FollowingController extends BaseController {
     }
   }
   async getUserFollowing(req, res) {
-    const userId = req.user.id;
-    const where = { post_id: req.params.id };
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 5;
-    const offset = (page - 1) * limit || 0;
-    const pets = await Pet.findAll({
-      include: [
-        {
-          model: User,
-          as: "following",
-          required: true,
-          attributes: [],
-          where: {
-            "$following.id$": userId,
+    try {
+      const userId = req.user.id;
+      const where = { post_id: req.params.id };
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 5;
+      const offset = (page - 1) * limit || 0;
+      const pets = await Pet.findAll({
+        include: [
+          {
+            model: User,
+            as: "following",
+            required: true,
+            attributes: [],
+            where: {
+              "$following.id$": userId,
+            },
           },
-        },
-      ],
-    });
-    res.status(200).json(pets);
+        ],
+      });
+      res.status(200).json(pets);
+    } catch (error) {
+      console.log(error);
+      res.status(400).json(error);
+    }
   }
   async getPetFollowers(req, res) {
-    const petId = req.params.id;
-    console.log(petId);
-    const where = { post_id: req.params.id };
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 5;
-    const offset = (page - 1) * limit || 0;
-    const users = await User.findAll({
-      attributes: ["id", "avatar", "first_name", "last_name", "username"],
-      include: [
-        {
-          model: Pet,
-          as: "follower",
-          required: true,
-          attributes: [],
-          where: {
-            "$follower.id$": petId,
+    try {
+      const petId = req.params.id;
+      console.log(petId);
+      const where = { post_id: req.params.id };
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 5;
+      const offset = (page - 1) * limit || 0;
+      const users = await User.findAll({
+        attributes: ["id", "avatar", "first_name", "last_name", "username"],
+        include: [
+          {
+            model: Pet,
+            as: "follower",
+            required: true,
+            attributes: [],
+            where: {
+              "$follower.id$": petId,
+            },
           },
-        },
-      ],
-    });
-    res.status(200).json(users);
+        ],
+      });
+      res.status(200).json(users);
+    } catch (error) {
+      console.log(error);
+      res.status(400).json(error);
+    }
   }
 }

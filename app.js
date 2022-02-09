@@ -11,6 +11,8 @@ import petsRouter from "./routes/pets.js";
 import authRouter from "./routes/auth.js";
 import commentsRouter from "./routes/comments.js";
 import followingRouter from "./routes/following.js";
+import votingRouter from "./routes/voting.js";
+import eventsRouter from "./routes/events.js";
 import searchRouter from "./routes/search.js";
 
 import cors from "cors";
@@ -43,6 +45,7 @@ app.use("/pets", petsRouter);
 app.use("/auth", authRouter);
 app.use("/comments", commentsRouter);
 app.use("/following", followingRouter);
-app.use("/search", searchRouter);
+app.use("/voting", votingRouter);
+app.use("/events", eventsRouter);
 
 export default app;

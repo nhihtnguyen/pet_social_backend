@@ -19,9 +19,18 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => controller.getByOwner(req, res)
 );
+router.get("/:id/count_comments", (req, res) =>
+  controller.getNumberOfComments(req, res)
+);
+
 router.get("/:id", (req, res) => controller.getById(req, res));
 router.get("/pet/:id", (req, res) => controller.getByPetId(req, res));
-
+router.put("/:id/report_image", (req, res) =>
+  controller.report("image_status")(req, res)
+);
+router.put("/:id/report_text", (req, res) =>
+  controller.report("caption_status")(req, res)
+);
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
