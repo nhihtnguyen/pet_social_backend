@@ -1,10 +1,26 @@
 import BaseController from "./base_controller.js";
 import db from "../models/index.cjs";
-const { Event } = db;
+
+const { Event, Paticipant } = db;
 
 export class EventController extends BaseController {
   constructor() {
     super(Event);
+  }
+  async joinEvent(req, res) {
+    try {
+      const event_id = req.params.id;
+      const user_id = req.user.id;
+      let record = await Paticipant.create({ ...req.body, event_id, user_id });
+
+
+      if (record) {
+        res.status(200).json(record);
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(400).json(error);
+    }
   }
   async getAll(req, res) {
     try {
