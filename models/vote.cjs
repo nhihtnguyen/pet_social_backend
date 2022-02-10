@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       user_id: DataTypes.INTEGER,
       post_id: DataTypes.INTEGER,
+      event_id: DataTypes.INTEGER,
       comment_id: { 
         type: DataTypes.INTEGER,
         allowNull: false,
