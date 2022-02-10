@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       User.hasMany(models.Post, { foreignKey: "user_id" });
-      User.hasMany(models.Paticipant, { foreignKey: "user_id" });
+      User.hasMany(models.Participant, { foreignKey: "user_id" });
       User.belongsTo(models.Country, { foreignKey: "country_code" });
       User.belongsToMany(models.Pet, {
         through: "PetFollower",
@@ -30,14 +30,15 @@ module.exports = (sequelize, DataTypes) => {
       first_name: DataTypes.STRING,
       last_name: DataTypes.STRING,
       username: DataTypes.STRING,
-      facebook_id: DataTypes.STRING,
+      public_address: DataTypes.STRING,
       google_id: DataTypes.STRING,
       is_active: DataTypes.BOOLEAN,
       is_blocked: DataTypes.BOOLEAN,
       country_code: DataTypes.INTEGER,
       avatar: DataTypes.TEXT,
       password: DataTypes.TEXT,
-      background: DataTypes.STRING
+      background: DataTypes.STRING,
+      description: DataTypes.TEXT
     },
     {
       sequelize,

@@ -1,26 +1,39 @@
 import BaseController from "./base_controller.js";
 import db from "../models/index.cjs";
-const { Comment, User } = db;
+const { Comment, User, Vote } = db;
 import { REQUIRE_FIELDS } from "../constants/require_fields.js";
-
+import Sequelize from "sequelize";
 export class CommentController extends BaseController {
   constructor() {
     super(Comment);
   }
   async getByPostId(req, res) {
-    const replyFor = req.query.reply || null;
-    const where = { post_id: req.params.id, reply_for: replyFor };
-    const page = req.query.page || 1;
-    const limit = req.query.limit || 5;
-    const offset = (page - 1) * limit || 0;
-    const comments = await this._Model.findAll({
-      include: [{ model: User, attributes: ["first_name", "last_name"] }],
-      where,
-      order: [["id", "DESC"]],
-      offset,
-      limit,
-    });
-    res.status(200).json(comments);
+    try {
+      const replyFor = req.query.reply || null;
+      const where = { post_id: req.params.id, reply_for: replyFor };
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 5;
+      const offset = (page - 1) * limit || 0;
+      const comments = await this._Model.findAll({
+        attributes: {
+          include: [
+            [Sequelize.fn("COUNT", Sequelize.col("Vote.id")), "total_votes"],
+          ],
+        },
+        include: [
+          { model: Vote, attributes: [] },
+          { model: User, attributes: ["first_name", "last_name"] },
+        ],
+        group: ["Comment.id", "User.id"],
+        where,
+        order: [["id", "DESC"]],
+        offset,
+        limit,
+      });
+      res.status(200).json(comments);
+    } catch (err) {
+      res.status(400).json(err.message);
+    }
   }
 
   async createOne(req, res) {

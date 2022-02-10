@@ -4,9 +4,17 @@ import db from "../models/index.cjs";
 import { Client } from "@elastic/elasticsearch";
 import dotenv from "dotenv";
 dotenv.config();
-const { Post, PetPost, PostTag, User, Pet } = db;
+const { Post, PetPost, PostTag, User, Pet, Comment, Vote } = db;
 
-const client = new Client({ node: process.env.ELASTIC_SEARCH_URL });
+const client = new Client({
+  cloud: {
+    id: 'pet-social:dXMtZWFzdDQuZ2NwLmVsYXN0aWMtY2xvdWQuY29tJDc2M2ZhNjc0Nzg3ZjQxNWU4ZjExNzM5MzFiMDFjOWZhJGEzMTE2OGI5ZmQ1YjRhZjQ4NDdjMmJjYmFiNTZkOGY3'
+  },
+  auth: {
+    username: 'elastic',
+    password: 'wrvfjcVQupzDqx2HFYqwHcB3'
+  }
+});
 
 export class PostController extends BaseController {
   constructor() {
@@ -37,12 +45,11 @@ export class PostController extends BaseController {
       record = JSON.parse(JSON.stringify(record));
       record.pet_names = pets.map((pet) => pet.name);
       record.user_name = user.first_name + " " + user.last_name;
-      /*
+
       await client.index({
         index: "post",
         body: record,
       });
-      */
 
       console.log(record);
       return res.json(record);
@@ -52,8 +59,9 @@ export class PostController extends BaseController {
     }
   }
   async getById(req, res) {
-    return this._Model
-      .findByPk(req.params.id, {
+    console.log('ahuhu')
+    try {
+      let post = await this._Model.findByPk(req.params.id, {
         include: [
           {
             model: PetPost,
@@ -64,17 +72,19 @@ export class PostController extends BaseController {
             attributes: ["avatar", "id", "first_name", "last_name"],
           },
         ],
-      })
-      .then((record) => {
-        if (!record) {
-          return res.status(404).send("Record Not Found");
-        }
-        res.status(200).json(record);
-      })
-      .catch((err) => {
-        console.error(err.message);
-        res.status(400).json(err);
       });
+      if (!post) {
+        return res.status(404).send("Record Not Found");
+      } else {
+        post = JSON.parse(JSON.stringify(post));
+        post.total_comments = await Comment.count({
+          where: { post_id: post.id },
+        });
+        res.status(200).json(post);
+      }
+    } catch (err) {
+      res.status(400).json(err.message);
+    }
   }
 
   async getExplore(req, res) {
