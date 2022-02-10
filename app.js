@@ -12,6 +12,8 @@ import authRouter from "./routes/auth.js";
 import commentsRouter from "./routes/comments.js";
 import followingRouter from "./routes/following.js";
 import searchRouter from "./routes/search.js";
+import eventsRouter from "./routes/events.js";
+import participantsRouter from "./routes/participants.js";
 
 import cors from "cors";
 import passport from "passport";
@@ -44,5 +46,7 @@ app.use("/auth", authRouter);
 app.use("/comments", commentsRouter);
 app.use("/following", followingRouter);
 app.use("/search", searchRouter);
+app.use("/events", eventsRouter);
+app.use("/participants", participantsRouter);
 
 export default app;
