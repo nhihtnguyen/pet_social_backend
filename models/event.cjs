@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
       description: DataTypes.TEXT,
       start: DataTypes.DATE,
       end: DataTypes.DATE,
+      creator: DataTypes.INTEGER,
     },
     {
       sequelize,

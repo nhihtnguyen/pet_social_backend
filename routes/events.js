@@ -12,10 +12,12 @@ import passport from "passport";
 const controller = new EventController();
 
 router.get("/", (req, res) => controller.getAll(req, res));
-router.get("/:id/participants", (req, res) =>
-  controller.getParticipants(req, res)
+router.get(
+  "/:id/participants",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => controller.getParticipants(req, res)
 );
-
+router.get("/:id/summary", (req, res) => controller.getSummary(req, res));
 router.get("/:id", (req, res) => controller.getById(req, res));
 router.post("/", passport.authenticate("jwt", { session: false }), (req, res) =>
   controller.createOne(req, res)
