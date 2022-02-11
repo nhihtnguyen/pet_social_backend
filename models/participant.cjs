@@ -19,10 +19,10 @@ module.exports = (sequelize, DataTypes) => {
     user_id: DataTypes.INTEGER,
     event_id: DataTypes.INTEGER,
     pet_id: DataTypes.INTEGER,
-    media_URL: DataTypes.TEXT,
+    media_url: DataTypes.TEXT,
     caption: DataTypes.STRING,
     upvote: DataTypes.INTEGER,
-    paticipated_date: DataTypes.DATE
+    participated_date: DataTypes.DATE
   }, {
     sequelize,
     modelName: 'Participant',
