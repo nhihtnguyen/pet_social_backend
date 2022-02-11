@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { EventController } from "../controllers/event.js";
+
 import { uploadImageServerMiddleware } from "../middleware/upload_image_server.mdw.js";
 import { uploadImageCloudinaryMiddleware } from "../middleware/upload_image_cloudinary.mdw.js";
 const router = Router();

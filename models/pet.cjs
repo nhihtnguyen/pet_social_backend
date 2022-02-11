@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Pet.hasMany(models.Paticipant, { foreignKey: "pet_id" });
+      Pet.hasMany(models.Participant, { foreignKey: "pet_id" });
       // Pet.hasMany(models.UserPet, { foreignKey: 'pet_id'})
       // Pet.hasMany(models.PetFollower, { foreignKey: 'pet_id'})
       Pet.hasMany(models.PetStatus, { foreignKey: "pet_id" });
@@ -39,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       gender: DataTypes.BOOLEAN,
       background: DataTypes.STRING,
       avatar: DataTypes.TEXT,
+      description: DataTypes.TEXT
     },
     {
       sequelize,
