@@ -1,4 +1,5 @@
 .git
 node_modules/
+uploaded_images/
 package-lock.json
 .env

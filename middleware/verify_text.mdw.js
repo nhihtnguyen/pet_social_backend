@@ -31,14 +31,12 @@ export const checkCaptionStatus = (caption) => {
 export const verifyTextMiddleware =
   (fieldNameBody) => async (req, res, next) => {
     let captionStatus = STATUS["allowed"];
-    console.log("1");
 
     // Check null
     if (req.body[fieldNameBody] && req.body[fieldNameBody] === "") {
       //
       return res.json({ message: "Text is required" });
     }
-    console.log("1");
     // Check bad words
     try {
       captionStatus = checkCaptionStatus(req.body[fieldNameBody]);
@@ -63,7 +61,7 @@ export const verifyTextMiddleware =
           headers: { ...newForm.getHeaders() },
         });
         captionStatus =
-          Number(captionStatus.data["result"]) === 1.0
+          Number(captionStatus.data["result"]) == 1.0
             ? STATUS["allowed"]
             : STATUS["warning"];
       } catch (error) {
@@ -74,11 +72,14 @@ export const verifyTextMiddleware =
         });
       }
     }
+
     if (captionStatus === STATUS["denied"]) {
       return res.status(400).json({
         message: "Text is denied",
         status: captionStatus,
+        type: fieldNameBody,
       });
     }
+    req.body[fieldNameBody] = captionStatus;
     next();
   };

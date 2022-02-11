@@ -69,10 +69,14 @@ export const verifyImage = async (req, res, next) => {
       });
       imageStatus = checkImageStatus(imageStatus.data);
       if (imageStatus === STATUS["denied"]) {
-        return res
-          .status(400)
-          .json({ message: "Image is denied", status: imageStatus });
+        return res.status(400).json({
+          message: "Image is denied",
+          status: imageStatus,
+          type: "image",
+        });
       }
+      req.body["image"] = imageStatus;
+
       next();
     } catch (error) {
       // logging
