@@ -1,6 +1,6 @@
 import BaseController from "./base_controller.js";
 import db from "../models/index.cjs";
-const { Event, Participant } = db;
+const { Event, Participant, Vote } = db;
 
 export class EventController extends BaseController {
   constructor() {
@@ -38,7 +38,7 @@ export class EventController extends BaseController {
   }
   async createOne(req, res) {
     const body = req.body;
-    body.user_id = req.user.id;
+    body.creator = req.user.id;
     req.body = body;
     return this.create(req, res);
   }
@@ -64,11 +64,17 @@ export class EventController extends BaseController {
   }
   async getParticipants(req, res) {
     try {
+      const userId = req.user.id;
       const where = { event_id: req.params.id };
       const page = req.query.page || 1;
       const limit = req.query.limit || 5;
       const offset = (page - 1) * limit || 0;
-      let records = await Participant.findAll({ where, offset, limit });
+      let records = await Participant.findAll({
+        where,
+        offset,
+        limit,
+        order: [["updated_at", "DESC"]],
+      });
       if (!records) {
         return res.status(404).send("Event Not Found");
       }
@@ -76,6 +82,45 @@ export class EventController extends BaseController {
     } catch (err) {
       console.error(err.message);
       res.status(400).json(err);
+    }
+  }
+  async uploadThumbnail(req, res) {
+    try {
+      const event = await this._Model.findOne({
+        where: { id: req.params.id },
+      });
+      if (!event) {
+        return res.status(404).send("Event not found");
+      }
+      if (req.user.id != event.creator) {
+        return res.status(401).send("Unauthorized");
+      }
+
+      let newAvatar = await record.save();
+      res.status(200).json(newAvatar);
+    } catch (e) {
+      console.log("Upload image User.......", e);
+      res.status(500).json({ msg: "Server error" });
+    }
+  }
+  async getSummary(req, res) {
+    try {
+      const eventId = req.params.id;
+
+      const totalParticipants = await Participant.count({
+        where: { event_id: eventId },
+      });
+      const totalVotes = await Vote.count({
+        where: { event_id: eventId },
+      });
+      res.status(200).json({
+        total_participants: totalParticipants,
+        total_votes: totalVotes,
+      });
+    } catch (error) {
+      console.log(error);
+
+      res.status(500).json(error);
     }
   }
 }
