@@ -10,15 +10,25 @@ export class PetController extends BaseController {
   }
   async uploadImage(req, res) {
     try {
-      console.log(req.body.media_url);
-      let updateField = req.path.split("/");
-      updateField = updateField[updateField.length - 1].trim();
-      console.log(updateField);
-      let record = await this._Model.findOne({ where: { id: req.user.id } });
-      if (!record) {
+      const userPet = await UserPet.findOne({
+        where: { pet_id: req.params.id },
+      });
+      if (!userPet) {
+        return res.status(404).send("Pet not found");
+      }
+      if (req.user.id != userPet.user_id) {
         return res.status(401).send("Unauthorized");
       }
+
+      const record = await this._Model.findOne({
+        where: { id: req.params.id },
+      });
+
+      let updateField = req.path.split("/");
+      updateField = updateField[updateField.length - 1].trim();
+
       record[`${updateField}`] = req.body.media_url;
+
       let newAvatar = await record.save();
       res.status(200).json(newAvatar);
     } catch (e) {
@@ -76,7 +86,7 @@ export class PetController extends BaseController {
   }
 
   async getByUserId(req, res) {
-    const userId = req.user.id;
+    const userId = req.query.user_id;
     try {
       const pets = await Pet.findAll({
         include: [
@@ -176,6 +186,27 @@ export class PetController extends BaseController {
       res.status(200).json(list_pets);
     } catch (error) {
       res.status(500).json(error.message);
+    }
+  }
+  async update(req, res) {
+    try {
+      let userPet = await UserPet.findOne({
+        where: { pet_id: req.params.id, user_id: req.user.id },
+      });
+      if (!userPet) {
+        return res.status(400).send("Unauthorized");
+      }
+      let record = await this._Model.findOne({ where: { id: req.params.id } });
+      if (!record) {
+        return res.status(404).send("Record Not Found");
+      }
+      const updatedRecord = await record.update(req.body, {
+        where: { id: req.params.id },
+      });
+      res.status(200).json(updatedRecord);
+    } catch (err) {
+      console.error(err.message);
+      res.status(400).json(err);
     }
   }
 }

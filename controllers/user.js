@@ -78,4 +78,23 @@ export class UserController extends BaseController {
         res.status(400).json(err);
       });
   }
+  async update(req, res) {
+    try {
+      const email = req.user.email;
+
+      let record = await this._Model.findOne({
+        where: { email },
+      });
+      if (!record) {
+        return res.status(404).send("Record Not Found");
+      }
+      const updatedRecord = await record.update(req.body, {
+        where: { id: req.params.id },
+      });
+      res.status(200).json(updatedRecord);
+    } catch (err) {
+      console.error(err.message);
+      res.status(400).json(err);
+    }
+  }
 }
