@@ -45,7 +45,7 @@ export const verifyTextMiddleware =
     } catch (error) {
       // logging
       console.log(error);
-      return res.json({
+      return res.status(500).json({
         message: "Error occur in text verifying",
       });
     }
@@ -54,8 +54,6 @@ export const verifyTextMiddleware =
       captionStatus !== STATUS["denied"] &&
       req.body[fieldNameBody].split(" ").length >= 4
     ) {
-      console.log("1");
-
       // Check caption 2
       try {
         let newForm = new FormData();
@@ -71,13 +69,13 @@ export const verifyTextMiddleware =
       } catch (error) {
         // logging
         console.log(error);
-        return res.json({
+        return res.status(500).json({
           message: "Error occur in pet-text verifying",
         });
       }
     }
     if (captionStatus === STATUS["denied"]) {
-      return res.json({
+      return res.status(400).json({
         message: "Text is denied",
         status: captionStatus,
       });

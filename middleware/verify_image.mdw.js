@@ -15,7 +15,6 @@ const allowingClass = ["cat", "dog"];
 const warningClass = ["person"];
 
 export const checkImageStatus = (res) => {
-  console.log("in temp", res);
   let allowed = 0;
   let warning = 0;
   for (let box of res) {
@@ -69,15 +68,16 @@ export const verifyImage = async (req, res, next) => {
         },
       });
       imageStatus = checkImageStatus(imageStatus.data);
-      console.log("imagestatus: ", imageStatus);
       if (imageStatus === STATUS["denied"]) {
-        return res.json({ message: "Image is denied", status: imageStatus });
+        return res
+          .status(400)
+          .json({ message: "Image is denied", status: imageStatus });
       }
       next();
     } catch (error) {
       // logging
       console.log(error);
-      return res.json({
+      return res.status(500).json({
         message: "Error occur in service",
       });
     }
