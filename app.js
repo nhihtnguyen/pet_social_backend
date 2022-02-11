@@ -14,6 +14,8 @@ import followingRouter from "./routes/following.js";
 import votingRouter from "./routes/voting.js";
 import eventsRouter from "./routes/events.js";
 import searchRouter from "./routes/search.js";
+import eventsRouter from "./routes/events.js";
+import participantsRouter from "./routes/participants.js";
 
 import cors from "cors";
 import passport from "passport";
@@ -46,7 +48,10 @@ app.use("/auth", authRouter);
 app.use("/comments", commentsRouter);
 app.use("/following", followingRouter);
 app.use("/voting", votingRouter);
+app.use("/search", searchRouter);
 app.use("/events", eventsRouter);
+app.use("/participants", participantsRouter);
+
 
 app.use(function (req, res, next) {
   res.status(404).json({

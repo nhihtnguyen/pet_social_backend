@@ -72,7 +72,7 @@ export default class BaseController {
       await this._Model.destroy({
         where: { id: req.params.id },
       });
-      res.status(200).json({ msg: `Removed ${this._Model.modelName}` });
+      res.status(200).json({ msg: `Removed` });
     } catch (err) {
       console.error(err.message);
       res.status(400).json(err);

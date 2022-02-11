@@ -44,7 +44,8 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     upvote: DataTypes.INTEGER,
-    downvote: DataTypes.INTEGER
+    downvote: DataTypes.INTEGER,
+    has_mint: DataTypes.BOOLEAN,
   }, {
     sequelize,
     modelName: 'Post',

@@ -18,4 +18,6 @@ export const REQUIRE_FIELDS = {
   ],
   Pet: ["name"],
   Comment: ["content", "user_id", "post_id"],
+  Event: ["name", "description", "start", "end"],
+  Participant: ["user_id"]
 };
