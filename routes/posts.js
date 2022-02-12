@@ -31,6 +31,9 @@ router.put("/:id/report_image", (req, res) =>
 router.put("/:id/report_text", (req, res) =>
   controller.report("caption_status")(req, res)
 );
+router.put("/:id/update_status", passport.authenticate("jwt", { session: false }), (req, res) =>
+  controller.updateStatus(req, res)
+);
 router.post(
   "/",
   passport.authenticate("jwt", { session: false }),
