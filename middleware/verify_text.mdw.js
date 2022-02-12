@@ -80,6 +80,8 @@ export const verifyTextMiddleware =
         type: fieldNameBody,
       });
     }
-    req.body[fieldNameBody] = captionStatus;
+    req.body[fieldNameBody + "_status"] = Object.keys(STATUS).find(
+      (key) => STATUS[key] === captionStatus
+    );
     next();
   };

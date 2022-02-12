@@ -75,7 +75,9 @@ export const verifyImage = async (req, res, next) => {
           type: "image",
         });
       }
-      req.body["image"] = imageStatus;
+      req.body["image_status"] = Object.keys(STATUS).find(
+        (key) => STATUS[key] === imageStatus
+      );
 
       next();
     } catch (error) {

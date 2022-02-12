@@ -39,6 +39,7 @@ export class UserController extends BaseController {
           "is_active",
           "avatar",
           "background",
+          "description",
         ],
       })
       .then((record) => {
@@ -65,6 +66,7 @@ export class UserController extends BaseController {
           "is_active",
           "avatar",
           "background",
+          "description",
         ],
       })
       .then((record) => {
