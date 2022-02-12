@@ -179,14 +179,15 @@ export class AuthController extends BaseController {
       }
 
       res
+        .status(302)
         .cookie("refresh", {
-          expires: new Date.now(),
+          expires: Date.now(),
           httpOnly: true,
         })
-        .writeHead(302, { Location: "/login" });
+        .end();
       res.end();
     } catch (error) {
-      res.status(401).json({ message: "User is not logged in" });
+      res.status(400).json({ message: "Unexpected error" });
     }
   };
 
