@@ -8,11 +8,11 @@ const { Post, PetPost, PostTag, User, Pet, Vote, Comment } = db;
 
 const client = new Client({
   cloud: {
-    id: 'pet-social:dXMtZWFzdDQuZ2NwLmVsYXN0aWMtY2xvdWQuY29tJDc2M2ZhNjc0Nzg3ZjQxNWU4ZjExNzM5MzFiMDFjOWZhJGEzMTE2OGI5ZmQ1YjRhZjQ4NDdjMmJjYmFiNTZkOGY3'
+    id: 'pet-social-search:dXMtZWFzdDQuZ2NwLmVsYXN0aWMtY2xvdWQuY29tJDVjN2IzOTAzZGIwZTRmMjc5Mjg1OTgxYTcyYzU0NDk3JGVhZmRmMWZjNmM1ZjQwYWVhOTE5ZjlkZGE0YmFjZGVl'
   },
   auth: {
     username: 'elastic',
-    password: 'wrvfjcVQupzDqx2HFYqwHcB3'
+    password: 'LS8sXn4oXx7h7uDsrcvZpH5e'
   }
 });
 
