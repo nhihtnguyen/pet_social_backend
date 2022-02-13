@@ -241,4 +241,24 @@ export class PostController extends BaseController {
       res.status(500).json(error.message);
     }
   };
+  async updateStatus(req, res) {
+    const postId = req.params.id;
+    try {
+      let record = await this._Model.findOne({ where: { id: postId } });
+      if (!record) {
+        return res.status(404).send("Record Not Found");
+      }
+      console.log(req.body)
+      record.set({
+        image_status: `${req.body.image_status}`,
+        caption_status: `${req.body.caption_status}`
+
+      })
+      await record.save();
+      res.status(200).json(record);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json(error.message);
+    }
+  };
 }
