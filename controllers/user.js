@@ -8,7 +8,6 @@ export class UserController extends BaseController {
   }
   async uploadImage(req, res) {
     try {
-      console.log(req.body.media_url);
       let updateField = req.path.split("/");
       updateField = updateField[updateField.length - 1].trim();
       console.log(updateField);

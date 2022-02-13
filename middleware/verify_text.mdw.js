@@ -16,6 +16,8 @@ const STATUS = {
 
 export const checkCaptionStatus = (caption) => {
   // Remember to add slide window size option
+  // Define a slide window
+  let windowSize = 1;
   if (caption === null || caption === undefined) {
     return "";
   }
