@@ -22,7 +22,6 @@ export class PostController extends BaseController {
   }
 
   async create(req, res) {
-    console.log("body", req.body);
     const userId = req.user.id;
     const pet_ids = req.body.mentions.split(",");
     const mentions = pet_ids?.map((pet_id) => ({ pet_id }));
@@ -59,7 +58,6 @@ export class PostController extends BaseController {
     }
   }
   async getById(req, res) {
-    console.log('ahuhu')
     try {
       let post = await this._Model.findByPk(req.params.id, {
         include: [
@@ -241,4 +239,23 @@ export class PostController extends BaseController {
       res.status(500).json(error.message);
     }
   };
+  async updateStatus(req, res) {
+    const postId = req.params.id;
+    try {
+      let record = await this._Model.findOne({ where: { id: postId } });
+      if (!record) {
+        return res.status(404).send("Record Not Found");
+      }
+      console.log(req.body);
+      record.set({
+        image_status: `${req.body.image_status}`,
+        caption_status: `${req.body.caption_status}`,
+      });
+      await record.save();
+      res.status(200).json(record);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json(error.message);
+    }
+  }
 }

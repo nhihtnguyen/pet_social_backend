@@ -102,7 +102,7 @@ export class AuthController extends BaseController {
       res
         .status(200)
         .cookie("refresh", refreshToken, {
-          expires: new Date(Date.now() + JWT_REFRESH_TOKEN_EXPIRATION),
+          expires: new Date(Date.now() + JWT_REFRESH_TOKEN_EXPIRATION * 1000),
           secure: NODE_ENV === "production",
           httpOnly: true,
         })
