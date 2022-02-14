@@ -1,9 +1,10 @@
 import BaseController from "./base_controller.js";
 import db from "../models/index.cjs";
 const { Pet, Post, User, UserPet, PetPost, PetFollower } = db;
-
+import { Sequelize } from "sequelize";
 import { REQUIRE_FIELDS } from "../constants/require_fields.js";
 
+const Op = Sequelize.Op;
 export class PetController extends BaseController {
   constructor() {
     super(Pet);
@@ -207,6 +208,29 @@ export class PetController extends BaseController {
     } catch (err) {
       console.error(err.message);
       res.status(400).json(err);
+    }
+  }
+  async getPopularPet(req, res) {
+    try {
+      const nowDate = new Date();
+      const lastWeek = new Date()
+      lastWeek.setDate(nowDate.getDate() - 7);
+
+      const where = { created_at: { [Op.between]: [lastWeek, nowDate] } }
+      const pets = await PetFollower.findAll({
+        attributes: [
+          "pet_id",
+          [Sequelize.fn('COUNT', Sequelize.col('follower_id')), 'count']
+        ],
+        group: ['pet_id'],
+        order: [['count', 'DESC']],
+        where
+      });
+      console.log(pets);
+      res.status(200).json(pets);
+    } catch (error) {
+      console.log(error);
+      res.status(400).json(error);
     }
   }
 }

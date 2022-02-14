@@ -16,6 +16,7 @@ router.get(
   passport.authenticate("jwt", { session: false }),
   (req, res) => controller.getByOwner(req, res)
 );
+router.get("/popular-pet", (req, res) => controller.getPopularPet(req, res));
 router.get("/:id/summary", (req, res) => controller.getSummary(req, res));
 router.get("/:id/siblings", (req, res) => controller.getBySibling(req, res));
 router.get("/:id/posts", (req, res) => controller.getPosts(req, res));

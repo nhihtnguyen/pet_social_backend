@@ -1,6 +1,8 @@
 import BaseController from "./base_controller.js";
 import db from "../models/index.cjs";
-const { Event, Participant, Vote } = db;
+const { Event, Participant, Vote, Pet } = db;
+import { Sequelize } from "sequelize";
+const Op = Sequelize.Op;
 
 export class EventController extends BaseController {
   constructor() {
@@ -121,6 +123,84 @@ export class EventController extends BaseController {
       console.log(error);
 
       res.status(500).json(error);
+    }
+  }
+  async getIncomingEvent(req, res) {
+    try {
+      let nowDate = new Date();
+      let comingDate = new Date();
+      nowDate.setDate(nowDate.getDate() + 1)
+      comingDate.setDate(nowDate.getDate() + 2)
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 5;
+      const offset = (page - 1) * limit || 0;
+      const where = { start: { [Op.col]: "Event.start", [Op.between]: [nowDate, comingDate] } }
+      let records = await Event.findAll({
+        where,
+        offset,
+        limit,
+        order: [["start", "DESC"]],
+      });
+      res.status(200).json(records);
+    } catch (error) {
+      console.log(error)
+      res.status(400).json(error);
+    }
+  }
+  async getResultEvent(req, res) {
+    try {
+      let nowDate = new Date();
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 5;
+      const offset = (page - 1) * limit || 0;
+      const where = { end: { [Op.lt]: nowDate } }
+      let records = await Event.findAll({
+        where,
+        offset,
+        limit,
+        order: [["end", "DESC"]],
+        include:
+        {
+          model: Participant,
+          include: Pet,
+        },
+        order: [
+          [Participant, "upvote", "DESC"]
+        ],
+      });
+      res.status(200).json(records);
+    } catch (error) {
+      console.log(error)
+      res.status(400).json(error);
+    }
+  }
+  async getCurrentEvent(req, res) {
+    try {
+      const nowDate = new Date();
+      const lastWeek = new Date()
+      lastWeek.setDate(nowDate.getDate() - 7);
+      const page = req.query.page || 1;
+      const limit = req.query.limit || 5;
+      const offset = (page - 1) * limit || 0;
+      const where = { end: { [Op.gt]: nowDate } }
+      let records = await Event.findAll({
+        where,
+        offset,
+        limit,
+        order: [["end", "DESC"]],
+        include:
+        {
+          model: Participant,
+          include: Pet,
+        },
+        order: [
+          [Participant, "upvote", "DESC"]
+        ],
+      });
+      res.status(200).json(records);
+    } catch (error) {
+      console.log(error)
+      res.status(400).json(error);
     }
   }
 }
