@@ -12,10 +12,10 @@ dotenv.config();
 
 const JWT_ACCESS_TOKEN_SERECT = process.env.JWT_ACCESS_TOKEN_SERECT || "abc";
 const JWT_ACCESS_TOKEN_EXPIRATION =
-  Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION) || 10000;
+  Number(process.env.JWT_ACCESS_TOKEN_EXPIRATION) || 3600;
 const JWT_REFRESH_TOKEN_SERECT = process.env.JWT_REFRESH_TOKEN_SERECT || "abc1";
 const JWT_REFRESH_TOKEN_EXPIRATION =
-  Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION) || 100000;
+  Number(process.env.JWT_REFRESH_TOKEN_EXPIRATION) || 604800;
 const NODE_ENV = process.env.NODE_ENV;
 // Bcrypt salt
 const BCRYPT_SALT = process.env.BCRYPT_SALT || 8;
@@ -98,7 +98,7 @@ export class AuthController extends BaseController {
       });
 
       refreshArray[refreshToken] = metadata;
-
+      console.log("JWT", JWT_REFRESH_TOKEN_EXPIRATION);
       res
         .status(200)
         .cookie("refresh", refreshToken, {

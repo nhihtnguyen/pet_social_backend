@@ -1,20 +1,10 @@
 import BaseController from "./base_controller.js";
 import { REQUIRE_FIELDS } from "../constants/require_fields.js";
 import db from "../models/index.cjs";
-import { Client } from "@elastic/elasticsearch";
 import dotenv from "dotenv";
+import elasticClient from "../services/elasticsearch.js";
 dotenv.config();
 const { Post, PetPost, PostTag, User, Pet, Vote, Comment } = db;
-
-const client = new Client({
-  cloud: {
-    id: "pet-social:dXMtZWFzdDQuZ2NwLmVsYXN0aWMtY2xvdWQuY29tJDc2M2ZhNjc0Nzg3ZjQxNWU4ZjExNzM5MzFiMDFjOWZhJGEzMTE2OGI5ZmQ1YjRhZjQ4NDdjMmJjYmFiNTZkOGY3",
-  },
-  auth: {
-    username: "elastic",
-    password: "wrvfjcVQupzDqx2HFYqwHcB3",
-  },
-});
 
 export class PostController extends BaseController {
   constructor() {
@@ -45,7 +35,7 @@ export class PostController extends BaseController {
       record.pet_names = pets.map((pet) => pet.name);
       record.user_name = user.first_name + " " + user.last_name;
 
-      await client.index({
+      await elasticClient.index({
         index: "post",
         body: record,
       });
