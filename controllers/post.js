@@ -80,7 +80,7 @@ export class PostController extends BaseController {
     //limit 5 record per page
     const limit = req.query.limit || 100;
     if (req.query.search) {
-      return client
+      return elasticClient
         .search({
           index: "post",
           from: (page - 1) * limit || 0,
