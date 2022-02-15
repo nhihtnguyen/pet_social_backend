@@ -8,7 +8,7 @@ const id =
 const password =
   process.env.ELASTIC_SEARCH_AUTH_PASSWORD || "wrvfjcVQupzDqx2HFYqwHcB3";
 const username = process.env.ELASTIC_SEARCH_AUTH_USERNAME || "elastic";
-
+console.log(id, password, username);
 const client = new Client({
   cloud: {
     id,

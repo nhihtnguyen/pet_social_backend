@@ -35,10 +35,14 @@ export class PostController extends BaseController {
       record.pet_names = pets.map((pet) => pet.name);
       record.user_name = user.first_name + " " + user.last_name;
 
-      await elasticClient.index({
-        index: "post",
-        body: record,
-      });
+      await elasticClient
+        .index({
+          index: "post",
+          body: record,
+        })
+        .catch((error) => {
+          console.log(error);
+        });
 
       console.log(record);
       return res.json(record);
@@ -97,7 +101,10 @@ export class PostController extends BaseController {
         })
         .then((result) =>
           res.status(200).send(result.body.hits.hits.map((hit) => hit._source))
-        );
+        )
+        .catch((error) => {
+          console.log(error);
+        });
     } else {
       return this._Model
         .findAll({
