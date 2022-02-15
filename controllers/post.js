@@ -1,20 +1,10 @@
 import BaseController from "./base_controller.js";
 import { REQUIRE_FIELDS } from "../constants/require_fields.js";
 import db from "../models/index.cjs";
-import { Client } from "@elastic/elasticsearch";
 import dotenv from "dotenv";
+import elasticClient from "../services/elasticsearch.js";
 dotenv.config();
 const { Post, PetPost, PostTag, User, Pet, Vote, Comment } = db;
-
-const client = new Client({
-  cloud: {
-    id: 'pet-social-search:dXMtZWFzdDQuZ2NwLmVsYXN0aWMtY2xvdWQuY29tJDVjN2IzOTAzZGIwZTRmMjc5Mjg1OTgxYTcyYzU0NDk3JGVhZmRmMWZjNmM1ZjQwYWVhOTE5ZjlkZGE0YmFjZGVl'
-  },
-  auth: {
-    username: 'elastic',
-    password: 'LS8sXn4oXx7h7uDsrcvZpH5e'
-  }
-});
 
 export class PostController extends BaseController {
   constructor() {
@@ -45,7 +35,7 @@ export class PostController extends BaseController {
       record.pet_names = pets.map((pet) => pet.name);
       record.user_name = user.first_name + " " + user.last_name;
 
-      await client.index({
+      await elasticClient.index({
         index: "post",
         body: record,
       });
@@ -90,7 +80,7 @@ export class PostController extends BaseController {
     //limit 5 record per page
     const limit = req.query.limit || 100;
     if (req.query.search) {
-      return client
+      return elasticClient
         .search({
           index: "post",
           from: (page - 1) * limit || 0,
