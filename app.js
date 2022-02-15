@@ -19,6 +19,8 @@ import participantsRouter from "./routes/participants.js";
 import cors from "cors";
 import passport from "passport";
 import redisClient from "./services/redis_service.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
