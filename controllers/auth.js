@@ -105,6 +105,7 @@ export class AuthController extends BaseController {
           expires: new Date(Date.now() + JWT_REFRESH_TOKEN_EXPIRATION * 1000),
           secure: NODE_ENV === "production",
           httpOnly: true,
+          sameSite: "none",
         })
         .json({ msg: "Success", accessToken, metadata })
         .end();
