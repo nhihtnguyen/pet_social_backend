@@ -25,13 +25,22 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 export const __dirname = path.dirname(__filename);
 
+let whitelist = process.env.FRONT_END_DOMAIN;
+whitelist = whitelist ? whitelist.split(",") : [];
+
+let corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
+
 const app = express();
-app.use(
-  cors({
-    credentials: true,
-    origin: process.env.FRONT_END_DOMAIN || true,
-  })
-);
+app.use(cors(corsOptions));
 
 //redisClient.connect();
 
