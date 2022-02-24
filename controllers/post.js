@@ -104,6 +104,7 @@ export class PostController extends BaseController {
         )
         .catch((error) => {
           console.log(error);
+          res.status(500).send("Error in service");
         });
     } else {
       return this._Model

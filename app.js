@@ -29,7 +29,7 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: process.env.FRONT_END_DOMAIN,
+    origin: process.env.FRONT_END_DOMAIN || true,
   })
 );
 
