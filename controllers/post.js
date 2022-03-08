@@ -47,7 +47,7 @@ export class PostController extends BaseController {
       console.log(record);
       return res.json(record);
     } catch (err) {
-      console.error(err.message);
+      console.error(err);
       res.status(400).json(err);
     }
   }
@@ -80,6 +80,56 @@ export class PostController extends BaseController {
   }
 
   async getExplore(req, res) {
+    const page = req.query.page;
+    //limit 5 record per page
+    const limit = req.query.limit || 100;
+    if (req.query.search) {
+      return elasticClient
+        .search({
+          index: "post",
+          from: (page - 1) * limit || 0,
+          size: limit,
+          body: {
+            query: {
+              multi_match: {
+                fields: ["pet_names", "caption"],
+                query: req.query.search,
+                fuzziness: 1,
+              },
+            },
+          },
+        })
+        .then((result) =>
+          res.status(200).send(result.body.hits.hits.map((hit) => hit._source))
+        )
+        .catch((error) => {
+          console.log(error);
+          res.status(500).send("Error in service");
+        });
+    } else {
+      return this._Model
+        .findAll({
+          where: { image_status: "allowed", caption_status: "allowed" },
+          order: [["updated_at", "ASC"]],
+          limit: limit,
+          offset: (page - 1) * limit || 0,
+          include: [
+            {
+              model: User,
+              attributes: ["avatar", "id", "first_name", "last_name"],
+            },
+          ],
+        })
+        .then((records) => {
+          res.status(200).json(records);
+        })
+        .catch((err) => {
+          console.error(err.message);
+          res.status(400).json(err);
+        });
+    }
+  }
+  async getAll(req, res) {
     const page = req.query.page;
     //limit 5 record per page
     const limit = req.query.limit || 100;
@@ -254,6 +304,20 @@ export class PostController extends BaseController {
     } catch (error) {
       console.log(error);
       res.status(500).json(error.message);
+    }
+  }
+  async getExtra(req, res) {
+    try {
+      const totalPost = await this._Model.count();
+      const totalAllowedPost = await this._Model.count({
+        where: { image_status: "allowed", caption_status: "allowed" },
+      });
+      res
+        .status(200)
+        .json({ total_post: totalPost, total_allowed_post: totalAllowedPost });
+    } catch (error) {
+      console.error(error.message);
+      res.status(400).json(error);
     }
   }
 }

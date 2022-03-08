@@ -15,7 +15,7 @@ export default class BaseController {
       })
       .catch((err) => {
         console.error(err.message);
-        res.status(400).json(err);
+        res.status(400).json(err.message);
       });
   }
 

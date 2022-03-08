@@ -22,9 +22,7 @@ router.get("/incoming", (req, res) => controller.getIncomingEvent(req, res));
 router.get("/closed", (req, res) => controller.getResultEvent(req, res));
 router.get("/ongoing", (req, res) => controller.getCurrentEvent(req, res));
 router.get("/:id", (req, res) => controller.getById(req, res));
-router.post("/", passport.authenticate("jwt", { session: false }), (req, res) =>
-  controller.createOne(req, res)
-);
+
 router.post(
   "/:id/join",
   passport.authenticate("jwt", { session: false }),
@@ -33,6 +31,9 @@ router.post(
   verifyImage,
   uploadImageCloudinaryMiddleware,
   (req, res) => controller.joinEvent(req, res)
+);
+router.post("/", passport.authenticate("jwt", { session: false }), (req, res) =>
+  controller.createOne(req, res)
 );
 router.put(
   "/:id",

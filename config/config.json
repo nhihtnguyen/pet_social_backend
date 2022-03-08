@@ -1,4 +1,11 @@
 {
+   "development_docker": {
+    "username": "postgres",
+    "password": "postgres",
+    "database": "web_development",
+    "host": "database",
+    "dialect": "postgres"
+  },
   "development": {
     "username": "postgres",
     "password": "postgres",

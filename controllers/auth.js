@@ -105,7 +105,7 @@ export class AuthController extends BaseController {
           expires: new Date(Date.now() + JWT_REFRESH_TOKEN_EXPIRATION * 1000),
           secure: NODE_ENV === "production",
           httpOnly: true,
-          sameSite: "none",
+          sameSite: NODE_ENV === "production" ? "none" : "",
         })
         .json({ msg: "Success", accessToken, metadata })
         .end();
@@ -168,7 +168,7 @@ export class AuthController extends BaseController {
       const token = req.cookies.refresh;
 
       if (!token) {
-        return res.status(401).json({ message: "User is not logged in" });
+        return res.status(302).json({ message: "User is not logged in" });
       }
 
       let user = jwt.verify(token, JWT_REFRESH_TOKEN_SERECT);
@@ -186,7 +186,6 @@ export class AuthController extends BaseController {
           httpOnly: true,
         })
         .end();
-      res.end();
     } catch (error) {
       res.status(400).json({ message: "Unexpected error" });
     }

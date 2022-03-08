@@ -9,14 +9,15 @@ import { uploadImageServerMiddleware } from "../middleware/upload_image_server.m
 
 const controller = new UserController();
 
-/*router.get("/", passport.authenticate("jwt", { session: false }), (req, res) =>
+router.get("/", passport.authenticate("jwt", { session: false }), (req, res) =>
   controller.getAll(req, res)
-);*/
+);
 router.get(
   "/me",
   passport.authenticate("jwt", { session: false }),
   (req, res) => controller.getByOwner(req, res)
 );
+router.get("/summary", (req, res) => controller.countUser(req, res));
 router.get("/:id", (req, res) => controller.getById(req, res));
 //router.post("/", (req, res) => controller.create(req, res));
 router.put(

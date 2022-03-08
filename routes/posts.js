@@ -8,11 +8,20 @@ import passport from "passport";
 const router = Router();
 
 const controller = new PostController();
-router.get("/user/:id", (req, res) => controller.getByUserID(req, res));
+router.get(
+  "/user/:id",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => controller.getAll(req, res)
+);
 
-//router.get("/", (req, res) => controller.getAll(req, res));
+router.get("/", (req, res) => controller.getAll(req, res));
 router.get("/explore", (req, res) => controller.getExplore(req, res));
 //router.get("/recommend", (req, res) => controller.getAll(req, res));
+router.get(
+  "/summary",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => controller.getExtra(req, res)
+);
 
 router.get(
   "/me",
@@ -31,8 +40,10 @@ router.put("/:id/report_image", (req, res) =>
 router.put("/:id/report_text", (req, res) =>
   controller.report("caption_status")(req, res)
 );
-router.put("/:id/update_status", passport.authenticate("jwt", { session: false }), (req, res) =>
-  controller.updateStatus(req, res)
+router.put(
+  "/:id/update_status",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => controller.updateStatus(req, res)
 );
 router.post(
   "/",
