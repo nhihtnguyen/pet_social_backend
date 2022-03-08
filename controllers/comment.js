@@ -62,4 +62,24 @@ export class CommentController extends BaseController {
       res.status(400).json(err);
     }
   }
+  async deleteOne(req, res) {
+    try {
+      const caller = req.user.id;
+      let record = await this._Model.findOne({ where: { id: req.params.id } });
+      if (!record) {
+        return res.status(404).send("Record Not Found");
+      }
+      if (record.user_id !== caller) {
+        return res.status(401).send("Unauthorized");
+      }
+
+      await this._Model.destroy({
+        where: { id: req.params.id },
+      });
+      res.status(200).json({ msg: `Removed` });
+    } catch (err) {
+      console.error(err.message);
+      res.status(400).json(err.message);
+    }
+  }
 }

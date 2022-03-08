@@ -98,4 +98,15 @@ export class UserController extends BaseController {
       res.status(400).json(err);
     }
   }
+  async countUser(req, res) {
+    return this._Model
+      .count()
+      .then((record) => {
+        res.status(200).json({ total_user: record });
+      })
+      .catch((err) => {
+        console.error(err.message);
+        res.status(400).json(err);
+      });
+  }
 }

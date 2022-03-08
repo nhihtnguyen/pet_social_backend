@@ -10,6 +10,11 @@ router.get("/:id", (req, res) => controller.getById(req, res));
 router.post("/", passport.authenticate("jwt", { session: false }), (req, res) =>
   controller.createOne(req, res)
 );
+router.delete(
+  "/:id",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => controller.deleteOne(req, res)
+);
 router.put(
   "/:id",
   passport.authenticate("jwt", { session: false }),

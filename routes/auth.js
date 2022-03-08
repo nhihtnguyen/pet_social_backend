@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { AuthController } from "../controllers/auth.js";
 const router = Router();
+import passport from "passport";
 
 const controller = new AuthController();
 
