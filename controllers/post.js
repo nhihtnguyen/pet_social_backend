@@ -131,6 +131,8 @@ export class PostController extends BaseController {
   }
   async getAll(req, res) {
     const page = req.query.page;
+    const warning = req.query.warning;
+    const where = warning ? { image_status: "warning" } : {};
     //limit 5 record per page
     const limit = req.query.limit || 100;
     if (req.query.search) {
@@ -162,6 +164,7 @@ export class PostController extends BaseController {
           order: [["updated_at", "ASC"]],
           limit: limit,
           offset: (page - 1) * limit || 0,
+          where,
           include: [
             {
               model: User,
@@ -280,7 +283,7 @@ export class PostController extends BaseController {
       if (!record) {
         return res.status(404).send("Record Not Found");
       }
-      record[type] = "warning";
+      record[`n_${type}_report`] += 1;
       await record.save();
       res.status(200).json(record);
     } catch (error) {
