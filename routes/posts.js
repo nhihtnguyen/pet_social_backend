@@ -35,10 +35,10 @@ router.get("/:id/count_comments", (req, res) =>
 router.get("/:id", (req, res) => controller.getById(req, res));
 router.get("/pet/:id", (req, res) => controller.getByPetId(req, res));
 router.put("/:id/report_image", (req, res) =>
-  controller.report("image_status")(req, res)
+  controller.report("image")(req, res)
 );
 router.put("/:id/report_text", (req, res) =>
-  controller.report("caption_status")(req, res)
+  controller.report("caption")(req, res)
 );
 router.put(
   "/:id/update_status",
